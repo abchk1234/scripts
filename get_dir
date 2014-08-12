@@ -1,0 +1,5 @@
+#!/bin/bash
+#Script to find the name of the current directory.
+
+directory=`pwd | rev | cut -f 1 -d "/" | rev`
+echo $directory

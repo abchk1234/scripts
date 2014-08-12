@@ -1,0 +1,38 @@
+#!/bin/bash
+## To enable or disable, ie, toggle a service, requires systemctl (systemd)
+#
+# Copyright (C) 2013  Aaditya Bagga  <aaditya_gnulinux@zoho.com>
+# Some ideas taken from Esclapion & Culinax <http://forum.manjaro.org/index.php?topic=9824.0>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# any later version.
+#
+# This program is distributed WITHOUT ANY WARRANTY;
+# without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+# Define the service
+
+# Check for user input first
+if [ $# -eq 1 ]; then
+	service="$1"
+else
+	#Default
+	service=ufw
+fi
+
+# Check status of service
+if systemctl is-active "$service" --quiet; then
+	#Service currently Active
+	pkexec systemctl stop "$service" && notify-send "$service stopped" && exit 0 || (notify-send "Unable to stop $service" && exit 1)
+else
+	#Service currently Inactive
+	pkexec systemctl start "$service" && notify-send "$service started" && exit 0|| (notify-send "Unable to start $service" && exit 1)
+fi

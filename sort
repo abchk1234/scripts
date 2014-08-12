@@ -1,0 +1,29 @@
+#!/bin/bash
+#Sort an array
+
+echo "Enter the array (5 numbers): "
+for ((i=0;i<5;i++))
+do
+	read a[$i]
+done
+
+for ((i=0;i<5;i++))
+do
+	for ((j=0;j<5;j++))
+	do
+		if [[ "${a[$j]}" -gt "${a[`expr $j + 1`]}" ]]
+		then
+			let t=${a[$j]}
+			let a[$j]="${a[`expr $j + 1`]}"
+			let a[`expr $j + 1`]=$t
+		fi
+	done
+done
+
+echo -ne "Sorted array: "
+i=0
+while [ $i -lt 5 ]
+do
+	echo -n "${a[$i]} "
+	let i=i+1
+done

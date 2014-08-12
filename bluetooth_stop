@@ -1,0 +1,6 @@
+#!/bin/bash
+#stop_bluetooth.sh
+killall blueman-applet
+systemctl stop bluetooth.service
+modprobe -r btusb
+exit 0

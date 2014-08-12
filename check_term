@@ -1,0 +1,20 @@
+#!/bin/bash
+#Script to check for installed terminals
+
+if [ "$TERM" == "linux" ]; then
+	term="linux"
+elif [ -f "/usr/bin/xfce4-terminal" ]; then
+	term="xfce4-terminal"
+elif [ -f "/usr/bin/gnome-terminal" ]; then
+	term="gnome-terminal"
+elif [ -f "/usr/bin/konsole" ]; then
+	term="konsole"
+elif [ -f "/usr/bin/rxvt" ]; then
+	term="rxvt"
+elif [ -f "/usr/bin/xterm" ]; then
+	term="xterm"
+else
+	term="$TERM"
+fi
+
+echo $term

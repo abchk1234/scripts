@@ -1,0 +1,17 @@
+#!/bin/bash
+#sudo systemctl start httpd
+
+case "$1" in
+stop)
+	sudo rc-service httpd stop
+	/home/aaditya/DataLinux/apache/apache-tomcat-7.0.34/bin/shutdown.sh &&
+	sudo mysqladmin -u root -p shutdown
+	;;
+start)
+	sudo rc-service httpd start &&
+	/home/aaditya/DataLinux/apache/apache-tomcat-7.0.34/bin/startup.sh &&
+	sudo mysqld -u root &
+	;;
+esac
+
+exit 0

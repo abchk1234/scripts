@@ -1,0 +1,11 @@
+#!/bin/bash
+#A script to act as a reminder
+
+	eventname="Exam"        
+	eventdate="2013-12-08"
+	today=`date +%F`
+	
+	echo "$eventname is`dur $today $eventdate` away"
+	read	#Wait for user to close it
+	exit 0
+

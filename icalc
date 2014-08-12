@@ -1,0 +1,24 @@
+#!/bin/bash
+#Menu driven calculator
+
+echo "Enter 1 for addition, 2 for subtraction, 3 for multiplication, 4 for division"
+read c
+
+input()
+{
+	echo -ne "Enter first number: "
+	read x
+	echo -ne "Enter second number: "
+	read y
+}
+
+case $c in
+	1)input; let z=$x+$y;;
+	2)input; let z=$x-$y;;
+	3)input; let z=$x\*$y;;
+	4)input; let z=$x/$y;;
+	*)echo "Wrong choice"; exit 1;;
+esac
+echo "Result: $z"
+
+exit 0

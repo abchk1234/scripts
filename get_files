@@ -1,0 +1,15 @@
+#!/bin/bash
+#Script to find out names of files in a directory. The filenames should be like "name.extension".
+#The output is stored in a file with the name of the folder containing these files like "foldername.txt".
+
+#files=`ls | cut -f 1 -d "."`
+directory=`pwd | rev | cut -f 1 -d "/" | rev`
+
+#Check if output file was already present, ie, created before.
+#If it was then remove it so that its not counted.
+if [ -f "./$directory.txt" ]; then
+	rm "./$directory.txt"
+fi
+
+#Now transfer the file-names > directory-name.txt
+ls | cut -f 1 -d "." | uniq > "`pwd | rev | cut -f 1 -d "/" | rev`.txt"

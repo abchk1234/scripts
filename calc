@@ -1,0 +1,19 @@
+#!/bin/bash
+#Command line calculator
+
+if [ ! "$2" ] || [ ! "$3" ]
+then
+	echo "Invalid number of arguments"
+	exit 1
+fi
+
+case "$1" in
+	add)let z=$2+$3;;
+	sub)let z=$2-$3;;
+	mul)let z=$2\*$3;;
+	div)let z=$2/$3;;
+	*)echo "Wrong choice"; exit 1;;
+esac
+
+echo "Result: $z"
+exit 0

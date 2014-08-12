@@ -1,0 +1,35 @@
+#!/bin/bash
+#Script to swap two files
+
+#Check entered arguments
+if [ ! $1 ] || [ ! $2 ]
+then
+	echo "Using inbuilt defaults"
+	file1="/etc/resolv.conf"
+	file2="/etc/resolv.conf_VPN"
+else
+	file1=$1
+	file2=$2
+fi
+
+#Check if the files exist
+if [ ! -f $file1 ] || [ ! -f $file2 ]
+then
+	echo "File(s) doesnt exist"
+	exit 1
+fi
+
+#The swap function
+swap()
+{
+	cp $file2 file.bak
+	mv $file1 $file2
+	mv file.bak $file1
+}
+
+#Swap the files
+swap $file1 $file2
+echo "Files $file1 and $file2 swapped"
+
+#Done
+exit 0

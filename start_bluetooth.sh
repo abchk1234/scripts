@@ -1,0 +1,2 @@
+modprobe btusb
+blueman-applet &

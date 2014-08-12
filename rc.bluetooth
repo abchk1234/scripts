@@ -1,0 +1,35 @@
+#!/bin/sh
+
+bluez_start() {
+  /sbin/modprobe btusb
+  /usr/sbin/bluetoothd
+  blueman-applet 1>/dev/null 2>/dev/null &
+#  hciconfig hci0 up
+}
+
+bluez_stop() {
+#  hciconfig hci0 down
+  killall -q blueman-applet 1>/dev/null 2>/dev/null
+  /sbin/udevadm trigger --subsystem-match=bluetooth --action=remove
+  pkill -TERM bluetoothd 1>/dev/null 2>/dev/null
+  /sbin/modprobe -r btusb
+}
+
+case "$1" in
+  start)
+    bluez_start
+    ;;
+  stop)
+    bluez_stop
+    ;;
+  restart)
+    bluez_stop
+    sleep 1
+    bluez_start
+    ;;
+  *)
+    printf "Usage: $N {start|stop|restart}\n"
+    exit 1
+    ;;
+esac
+

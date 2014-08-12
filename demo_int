@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#Display commands to the user
+printf "Enter 1 to display Current time and date \nEnter 2 to display 
+Users Currently logged in \nEnter 3 to display Uptime \n"
+printf "Enter Choice: "
+read choice
+
+if $choice=1 then
+	date
+elif $choice=2 then
+	who
+else
+	uptime
+fi
+
+#Write the commands to a file Demo.txt
+
+#first clear the file
+cat /dev/null > Demo.txt
+
+date >> Demo.txt
+who >> Demo.txt
+uptime >> Demo.txt
+

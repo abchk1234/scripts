@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#Display commands to the user
+printf "\nCurrent time and date is \n"
+date
+printf "\nUsers Currently logged in \n"
+who
+printf "\nUptime \n"
+uptime
+
+#Write the commands to a file Demo.txt
+
+#first clear the file
+cat /dev/null > Demo.txt
+
+date >> Demo.txt
+who >> Demo.txt
+uptime >> Demo.txt
+
+exit

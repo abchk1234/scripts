@@ -1,0 +1,11 @@
+#!/bin/bash
+#To output description of all software contained inside a file, which has same name as the folder,
+#and contains the list of files in that folder.
+
+directory=`pwd | rev | cut -f 1 -d "/" | rev`
+
+for i in `cat "./$directory.txt"`
+do
+	echo $i	
+	pacman -Si "$i" > "$i.txt"
+done

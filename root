@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ $UID -eq 0 ]
+then
+	echo root
+else 
+	printf "not root but " ;whoami
+fi
+

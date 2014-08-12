@@ -1,0 +1,58 @@
+#!/bin/bash
+#Function to swap 2 files /etc/resolv.conf and /etc/resolv.conf_VPN
+#and perform some openVPN stuff.
+
+#Check entered arguments
+if [ ! $1 ] || [ ! $2 ]
+then
+	echo "Using inbuilt defaults"
+	file1="/etc/resolv.conf"
+	file2="/etc/resolv.conf_VPN"
+else
+	file1=$1
+	file2=$2
+fi
+
+#Check if the files exist
+if [ ! -f $file1 ] || [ ! -f $file2 ]
+then
+	echo "File(s) doesnt exist"
+	exit 1
+fi
+
+#Check whether the files are same
+if [[ ! `cmp $file1 $file2` ]]
+then
+	echo "Files $file1 $file2 same"
+	echo "Replacing $file2 with $file2.bak"
+	if [ ! -f "$file2.bak" ]
+	then
+		echo "File $file2.bak doesnt exist"
+		echo "Exiting.."
+		exit 1
+	else
+		cp "$file2.bak" "$file2"
+	fi
+fi
+
+#The swap function
+swap()
+{
+	cp $file2 file.bak
+	mv $file1 $file2
+	mv file.bak $file1
+}
+
+#Swap the files
+swap $file1 $file2
+echo "Files $file1 and $file2 swapped"
+
+#Do openVPN stuff
+#openvpn --config /etc/openvpn/AirVPN_NL-Dorsum_UDP-443.ovpn
+
+#Again swap the files, ie, go back to the original state
+swap $file2 $file1
+echo "Files $file2 and $file1 swapped"
+
+#Done
+exit 0

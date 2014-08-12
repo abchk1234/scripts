@@ -1,0 +1,11 @@
+#!/bin/bash
+# Script to view system temps
+
+# Cpu and Mb
+sensors
+
+# Hard disk (may need to be customised as per individual's setup)
+hddtemp /dev/sda
+
+# Gpu temps (depends on the gpu)
+nvidia-smi -lso

@@ -1,0 +1,7 @@
+#!/bin/bash
+# Check for autosuspend usb status
+for d in /sys/bus/usb/devices/[0-9]* ; do
+	if [[ -e $d/product ]] ; then
+		echo -e "`basename $d`\t`cat $d/power/control`\t`cat $d/speed`\t`cat $d/product`"
+	fi
+done

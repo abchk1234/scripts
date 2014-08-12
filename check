@@ -1,0 +1,1 @@
+ if [ ! `ls /usr/share/icons/pdf2img_icon.png` ]; then echo "Doesnt exist"; else echo ""Exists; fi

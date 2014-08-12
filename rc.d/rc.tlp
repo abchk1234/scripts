@@ -1,0 +1,29 @@
+#!/bin/sh
+
+# tlp - system startup/shutdown
+#
+# Copyright (c) 2014 Thomas Koch <linrunner at gmx.net>
+# This software is licensed under the GPL v2 or later.
+
+### BEGIN INIT INFO
+# Provides:          tlp
+# Required-Start:    $remote_fs
+# Required-Stop:     $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: tlp start/stop script
+# Description:       Initialize tlp
+### END INIT INFO
+
+case "$1" in
+    start|\
+    stop|\
+    restart|\
+    force-reload|\
+    *)
+        TLP=/usr/sbin/tlp
+        [ -x $TLP ] && $TLP init $1
+        ;;
+esac
+
+exit 0

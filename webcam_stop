@@ -1,0 +1,5 @@
+/sbin/modprobe -r uvcvideo
+/sbin/modprobe -r videobuf2_core
+/sbin/modprobe -r videobuf2_vmalloc
+/sbin/modprobe -r videobuf2_memops
+/sbin/modprobe -r videodev
