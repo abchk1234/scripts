@@ -8,7 +8,7 @@ stop)
 	sudo mysqladmin -u root -p shutdown
 	;;
 start)
-	sudo rc-service httpd start &&
+	sudo rc-service httpd start
 	/home/aaditya/DataLinux/apache/apache-tomcat-7.0.34/bin/startup.sh &&
 	sudo mysqld -u root &
 	;;
