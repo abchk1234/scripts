@@ -1,0 +1,46 @@
+#!/bin/bash
+## manjaroiso-backup : Backup your system using manajroiso
+#  Copyright (C) 2013-2014 Aaditya Bagga (aaditya_gnulinux@zoho.com)
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  any later version.
+#
+#  This program is distributed WITHOUT ANY WARRANTY;
+#  without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#  See the GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##
+
+#set -e  # Exit on errors
+
+# (Re)install manjaroiso
+echo "Installing manjaroiso.."
+sudo pacman -Syu --needed manjaroiso manjaroiso-profiles
+
+# Copy a manjarosio profile to the home folder
+echo "Copying profiles.."
+mkdir -p ~/manjaroiso/backup
+rsync -aAXv /usr/share/manjaroiso/configs/shared ~/manjaroiso/backup/
+rsync -aAXv /usr/share/manjaroiso/configs/net ~/manjaroiso/backup/
+
+# Handle installed packages
+cd ~/manjaroiso/backup/net
+mv Packages-Net Packages-Net.bak  # Make backup of the default packages
+echo "Saving package list.."
+pacman -Qqen > Packages-Net  # All explicitly installed packages as DE packages
+
+# Handle home folder
+echo "Copying home folder.."
+rsync -aAXv --max-size=5M --delete --exclude={"/home/*/.thumbnails/*","/home/*/.cache/*","/home/*/.local/share/Trash/*","/home/aaditya/DataLinux/*","/home/aaditya/builds/*","/home/aaditya/manjaroiso/*"} /home overlay/  # Copy contents of home folder to installed system overlay
+
+# Handle etc folder
+echo "Copying etc folder.."
+rsync -aAXv --delete /etc overlay/  # Copy contents of etc folder to installed system overlay
+
+# Make ISO
+sudo buildiso
