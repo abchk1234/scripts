@@ -1,6 +1,6 @@
 #!/bin/bash
 # systemctl emulator for openrc
-###
+##
 #  Copyright (C) 2014 Aaditya Bagga (aaditya_gnulinux@zoho.com)
 #
 #  This program is free software: you can redistribute it and/or modify
@@ -12,7 +12,7 @@
 #  without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #  See the GNU General Public License for more details.
-###
+##
 # syntax for systemd's systemctl is
 # systemctl <operation> <service>
 # systemctl start haveged
