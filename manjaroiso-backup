@@ -1,6 +1,6 @@
 #!/bin/bash
 ## manjaroiso-backup : Backup your system using manajroiso
-#  Copyright (C) 2013-2014 Aaditya Bagga (aaditya_gnulinux@zoho.com)
+#  Copyright (C) 2014 Aaditya Bagga (aaditya_gnulinux@zoho.com)
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,29 +18,57 @@
 
 #set -e  # Exit on errors
 
+# Set mode. 
+# 0 = backup, 1 = generic
+#mode=0
+#echo "In mode $mode"
+
+# Set config.
+# default = net. Options include xfce, kde, openbox, etc.
+config=net
+Config=Net  # The packages file have the first letter as capital.
+echo "Using config $config"
+
 # (Re)install manjaroiso
-echo "Installing manjaroiso.."
-sudo pacman -Syu --needed manjaroiso manjaroiso-profiles
+echo "Installing manjaroiso..."
+sudo pacman -S --needed manjaroiso manjaroiso-profiles
 
 # Copy a manjarosio profile to the home folder
-echo "Copying profiles.."
-mkdir -p ~/manjaroiso/backup
-rsync -aAXv /usr/share/manjaroiso/configs/shared ~/manjaroiso/backup/
-rsync -aAXv /usr/share/manjaroiso/configs/net ~/manjaroiso/backup/
+if [ ! -d ~/manjaroiso/backup/$config ]; then
+	echo "Copying profiles..."
+	mkdir -p ~/manjaroiso/backup
+	rsync -aAXv /usr/share/manjaroiso/configs/shared ~/manjaroiso/backup/
+	rsync -aAXv /usr/share/manjaroiso/configs/$config ~/manjaroiso/backup/
+fi
 
 # Handle installed packages
-cd ~/manjaroiso/backup/net
-mv Packages-Net Packages-Net.bak  # Make backup of the default packages
-echo "Saving package list.."
-pacman -Qqen > Packages-Net  # All explicitly installed packages as DE packages
+cd ~/manjaroiso/backup/$config
+
+cp Packages Packages.bak  # Make backup of the default packages
+cp Packages-Xorg Packages-Xorg.bak  # Make backup of the default xorg packages
+cp Packages-$Config Packages-$Config.bak  # Make backup of the default DE packages
+
+#if [ $mode -eq 1 ]; then
+	# do nothing
+#	echo
+#else
+#	echo "bash" > Packages-Xorg  # Dummy package for Xorg
+#fi
+
+echo "Saving package list..."
+pacman -Qqen > Packages-$Config  # All explicitly installed packages as DE packages
+
 
 # Handle home folder
-echo "Copying home folder.."
-rsync -aAXv --max-size=5M --delete --exclude={"/home/*/.thumbnails/*","/home/*/.cache/*","/home/*/.local/share/Trash/*","/home/aaditya/DataLinux/*","/home/aaditya/builds/*","/home/aaditya/manjaroiso/*"} /home overlay/  # Copy contents of home folder to installed system overlay
+echo "Copying home folder..."
+# Copy contents of home folder to installed system overlay
+rsync -aAXv --max-size=5M --delete --exclude={"/home/*/.thumbnails/*","/home/*/.cache/*","/home/*/.local/share/Trash/*","/home/aaditya/DataLinux/*","/home/aaditya/builds/*","/home/aaditya/manjaroiso/*","/home/*/.wine*"} /home overlay/  
 
 # Handle etc folder
-echo "Copying etc folder.."
-rsync -aAXv --delete /etc overlay/  # Copy contents of etc folder to installed system overlay
+echo "Copying etc folder..."
+# Copy contents of etc folder to installed system overlay
+rsync -aAXv --delete /etc overlay/  
 
 # Make ISO
+echo "Building ISO..."
 sudo buildiso

@@ -1,16 +1,43 @@
 #!/bin/bash
-#sudo systemctl start httpd
+# start or stop apache tomcat server and related entities
 
 case "$1" in
 stop)
-	sudo rc-service httpd stop
+	echo "Stopping Apache server"
+	if [ -e /var/run/openrc/ ]; then 
+		sudo rc-service httpd stop # Manjaro
+	else
+		sudo rc.d/rc.httpd stop # Slackware
+	fi
+	
+	echo "Stopping Tomcat server"
 	/home/aaditya/DataLinux/apache/apache-tomcat-7.0.34/bin/shutdown.sh &&
-	sudo mysqladmin -u root -p shutdown
+	
+	#mysqladmin -u root -p shutdown
+	echo "Stopping mysqld"
+	if [ -e /var/run/openrc/ ]; then 
+		sudo rc-service mysql stop
+	else
+		sudo /etc/rc.d/rc.mysqld stop
+	fi
 	;;
 start)
-	sudo rc-service httpd start
+	echo "Starting Apache server"
+	if [ -e /var/run/openrc/ ]; then 
+		sudo rc-service httpd start # Manjaro
+	else
+		sudo /etc/rc.d/rc.httpd start # Slackware
+	fi
+	
+	echo "Starting Tomcat server"
 	/home/aaditya/DataLinux/apache/apache-tomcat-7.0.34/bin/startup.sh &&
-	sudo mysqld -u root &
+	
+	echo "Starting mysqld"
+	if [ -e /var/run/openrc/ ]; then 
+		sudo rc-service mysql start
+	else
+		sudo /etc/rc.d/rc.mysqld start
+	fi
 	;;
 esac
 
