@@ -28,13 +28,6 @@
 # This emulator tries to emulate systemctl for rc-service
 # and rc-update
 
-# Help
-if [ "$1" == '-h' ]; then
-	echo "Syntax: systemctl <operation> <service>"
-	echo "Example: systemctl start wicd"
-	exit 0
-fi
-
 check_root () {
 	if [ "$EUID" != '0' ]; then
 		echo "Root access required"
@@ -50,43 +43,47 @@ if [ -z $operation ]; then
 	exit 1
 fi
 
-if [ -z $service ]; then
-	echo "Service not specified"
-	exit 1
-fi
+check_srv () {
+	if [ -z $service ]; then
+		echo "Service not specified"
+		exit 1
+	fi
+}
 
-if [ $operation == 'start' ] || [ $operation == 'stop' ] || [ $operation == 'restart' ]; then
-	check_root
+case "$operation" in
+'start'|'stop'|'restart')
+	check_srv; check_root
 	# Start/stop/restart service if available
 	rc-service $service $operation || exit 1
-fi
-
-if [ $operation == 'enable' ]; then
-	check_root
+	;;
+'enable')
+	check_srv; check_root
 	# Add service to default runlevel
 	rc-update add $service || exit 1
-fi
-
-if [ $operation == 'disable' ]; then
-	check_root
+	;;
+'disable')
+	check_srv; check_root
 	# Remove service from default runlevel
 	rc-update del $service || exit 1
-fi
-
-if [ $operation == 'status' ]; then
-	# Show status of all services
-	rc-status
-fi
-
-if [ "$1" == '--failed' ]; then
+	;;
+'status')
+	check_srv
+	# Show status of service
+	rc-service $service status
+	;;
+'--failed'|'--crashed')
 	# Show crashed service
 	rc-status -c
-fi
-
-if [ "$1" == '--all' ]; then
+	;;
+'--all')
 	# Show all service with their runlevels
 	rc-update -v
-fi
+	;;
+'-h'|'--help'|*)
+	echo "Syntax: systemctl <operation> <service>"
+	echo "Example: systemctl start wicd"
+	;;
+esac
 
 # Done
 exit 0
