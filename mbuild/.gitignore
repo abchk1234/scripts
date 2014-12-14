@@ -1,0 +1,14 @@
+src
+pkg
+*.pkg.*
+*.src.*
+*.tar.*
+*.tgz
+*.run
+*.zip
+*.xz
+*.log
+*~
+.lock
+#mbuild.conf
+build/packages
