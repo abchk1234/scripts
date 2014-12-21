@@ -1,5 +1,5 @@
 #!/bin/bash
-# modules-load.sh: copy the modules in /etc/modules-load.d/* to /etc/conf.d/modules
+# modules-load.sh: copy the modules in /etc/modules-load.d/* to /etc/conf.d/modules and modprobe them
 ##
 #  Copyright (C) 2014 Aaditya Bagga (aaditya_gnulinux@zoho.com)
 #
@@ -19,6 +19,7 @@
 # However, openrc loads modules specified in the file /etc/conf.d/modules (by parsing the variable modules=""
 
 # This script aims to copy the modules specified in individual files in /etc/modules-load.d/* to a single modules variable in /etc/conf.d/modules
+# and load (modprobe) them
 
 modules_loc="/etc/modules-load.d"
 openrc_mod="/etc/conf.d/modules"
@@ -39,7 +40,9 @@ process_module () {
 	new_module="$1" # module to be checked specified as first argument
 
 	if [ ! "$(echo $modules | grep "$new_module")" ]; then
-		# supplement the modules variable with this new module
+		# Load this module
+		modprobe "$new_module"
+		# Supplement the modules variable with this new module
 		modules+=" $new_module"
 	fi
 }
