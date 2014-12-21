@@ -1,5 +1,18 @@
 #!/bin/bash
 # modules-load.sh: copy the modules in /etc/modules-load.d/* to /etc/conf.d/modules
+##
+#  Copyright (C) 2014 Aaditya Bagga (aaditya_gnulinux@zoho.com)
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  any later version.
+#
+#  This program is distributed WITHOUT ANY WARRANTY;
+#  without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#  See the GNU General Public License for more details.
+##
 
 # /etc/modules-load.d/ is a directory which contains files (ending with .conf), which specify the modules to be loaded.
 
