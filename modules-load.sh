@@ -21,6 +21,15 @@
 # This script aims to copy the modules specified in individual files in /etc/modules-load.d/* to a single modules variable in /etc/conf.d/modules
 # and load (modprobe) them
 
+# Display some help text
+#if [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+if [ -n "$1" ]; then
+	echo "modules_load: compatability modules loader for openrc"
+	echo "reads from /etc/modules-load.d/* to /etc/conf.d/modules"
+	echo "syntax: modules_load (takes no command line arguments)"
+	exit 0
+fi
+
 modules_loc="/etc/modules-load.d"
 openrc_mod="/etc/conf.d/modules"
 
