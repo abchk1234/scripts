@@ -7,18 +7,18 @@ path="$CWD"
 
 get-info () {
 	# Get the name of the package
-	if [ -f "$path"/*.SlackBuild ]; then
+	if [ -f "$path"/*.info ]; then
 		package=$(find "$path" -name "*.SlackBuild" -printf "%P\n" | cut -f 1 -d ".")
 	else
-		echo "asbt: Unable to process $package; SlackBuild not found."
+		echo " Unable to process $package; .info not found."
 		exit 1
 	fi
 	# Source the .info file to get the package details
 	if [[ -f "$path/$package.info" ]]; then
 		. "$path/$package.info"
-		echo "asbt: $path/$package.info sourced."
+		echo "$path/$package.info sourced."
 	else
-		echo "asbt: $package.info in $path N/A"
+		echo "$package.info in $path N/A"
 		exit 1
 	fi
 }
@@ -28,7 +28,6 @@ get-source-data () {
 	# Check special cases where the package has a separate download for x86_64
 	if [[ $(uname -m) == "x86_64" ]] && [[ -n "$DOWNLOAD_x86_64" ]]; then
 		link="$DOWNLOAD_x86_64"
-		arch="x86_64"
 	else
 		link="$DOWNLOAD"
 	fi
@@ -38,8 +37,6 @@ get-source-data () {
 	# Check for source in various locations
 	if [ -e "$path/$src" ]; then
 		md5=$(md5sum "$path/$src" | cut -f 1 -d " ")
-	elif [ -e "$path/$prgnam-$src" ]; then
-		md5=$(md5sum "$path/$prgnam-$src" | cut -f 1 -d " ")
 	else
 		echo "md5sum could not be calculated; src not found"
 		exit 1
@@ -49,7 +46,7 @@ get-source-data () {
 get-source-data
 
 # Now update the .info file
-if [ -n "$DOWNLOAD_x86_64" ]; then
+if [[ $(uname -m) == "x86_64" ]] && [[ -n "$DOWNLOAD_x86_64" ]]; then
 	sed -i "s|MD5SUM_x86_64=.*|MD5SUM_x86_64=\"${md5}\"|" $package.info
 	echo "MD5SUM_x86_64 updated"
 else
