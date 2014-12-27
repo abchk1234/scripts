@@ -8,7 +8,7 @@ path="$CWD"
 get-info () {
 	# Get the name of the package
 	if [ -f "$path"/*.info ]; then
-		package=$(find "$path" -name "*.SlackBuild" -printf "%P\n" | cut -f 1 -d ".")
+		package=$(find "$path" -name "*.info" -printf "%P\n" | cut -f 1 -d ".")
 	else
 		echo " Unable to process $package; .info not found."
 		exit 1
@@ -48,10 +48,10 @@ get-source-data
 # Now update the .info file
 if [[ $(uname -m) == "x86_64" ]] && [[ -n "$DOWNLOAD_x86_64" ]]; then
 	sed -i "s|MD5SUM_x86_64=.*|MD5SUM_x86_64=\"${md5}\"|" $package.info
-	echo "MD5SUM_x86_64 updated"
+	echo "MD5SUM_x86_64 updated in $package.info"
 else
 	sed -i "s|MD5SUM=.*|MD5SUM=\"${md5}\"|" $package.info
-	echo "MD5SUM updated"
+	echo "MD5SUM updated in $package.info"
 fi
 
 # Done
