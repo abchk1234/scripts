@@ -53,6 +53,8 @@ process_module () {
 		modprobe "$new_module"
 		# Supplement the modules variable with this new module
 		modules+=" $new_module"
+		# Give feedback
+		echo "Loaded $new_module"
 	fi
 }
 
