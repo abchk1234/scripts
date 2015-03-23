@@ -26,7 +26,7 @@ sudo mount -B /mnt/datalinux2 $1/mnt/data
 sudo cp /etc/resolv.conf $1/etc/resolv.conf
 
 # Finally, chroot
-sudo chroot $location /bin/bash || exit 1
+sudo chroot $location /bin/bash
 
 # Unmounting after exit from chroot
 sudo umount $1/mnt/data
