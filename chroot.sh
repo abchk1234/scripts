@@ -30,6 +30,6 @@ sudo chroot $location /bin/bash
 
 # Unmounting after exit from chroot
 sudo umount $1/mnt/data
-sudo umount $1/proc/ $1/sys/ $1/dev/ || exit 1
+sudo umount $1/{proc,sys,dev}/ || exit 1
 
 echo "Done"
