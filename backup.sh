@@ -1,4 +1,9 @@
 #!/bin/sh
+# backup.sh: System backup using rsync
+
+# Arguments:
+# $1: Destination path
+# $2: Source path (defaults to /)
 
 if [ $# -lt 1 ]; then 
     echo "No destination defined. Usage: $0 destination" >&2
@@ -25,11 +30,10 @@ case "$1" in
      ;;
 esac
 
-#src="$2"
 src=${2:-"/"}
 
 START=$(date +%s)
 rsync -aAXvC -H -h --delete "$src"/* "$1" --exclude={/dev/*,/proc/*,/sys/*,/tmp/*,/run/*,/mnt/*,/media/*,/lost+found,/var/lib/pacman/sync/*,/home/aaditya/DataLinux/*,/home/*/.thumbnails/*,/home/*/.mozilla/firefox/*.default/Cache/*,/home/aaditya/work/*,/home/aaditya/manjaroiso/*,/var/log/journal/*,/home/aaditya/src/kernel/*,/home/*/.cache/*,/root/.cache/*}
 FINISH=$(date +%s)
  
-echo "total time: $(( ($FINISH-$START) / 60 )) minutes, $(( ($FINISH-$START) % 60 )) seconds" | tee $1/"Backup from $(date '+%A, %d %B %Y, %T')"
+echo "total time: $(( ($FINISH-$START) / 60 )) minutes, $(( ($FINISH-$START) % 60 )) seconds" | tee $1/backup/"Backup-from-$(date '+%A-%d-%B-%Y-%T')"
