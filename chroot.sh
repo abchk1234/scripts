@@ -11,25 +11,25 @@ elif [ "$1" = -h ]; then
 fi
 
 location=$1
-cd $location
+cd "$location"
 
 # Mounting, basic
-sudo mount -t proc proc $1/proc/ || exit 1
-sudo mount -o bind /sys $1/sys/ || exit 1
-sudo mount -o bind /dev $1/dev/ || exit 1
+sudo mount -t proc proc "$1"/proc/ || exit 1
+sudo mount -o bind /sys "$1"/sys/ || exit 1
+sudo mount -o bind /dev "$1"/dev/ || exit 1
 
 # Mounting extra partition which is already mounted on host
 # first one is host mount path, second is chroot mount 
-sudo mount -B /mnt/datalinux2 $1/mnt/data
+sudo mount -B /mnt/datalinux2 "$1"/mnt/data
 
 # For internet access
-sudo cp /etc/resolv.conf $1/etc/resolv.conf
+sudo cp /etc/resolv.conf "$1"/etc/resolv.conf
 
 # Finally, chroot
-sudo chroot $location /bin/bash
+sudo chroot "$location" /bin/bash
 
 # Unmounting after exit from chroot
-sudo umount $1/mnt/data
-sudo umount $1/{proc,sys,dev}/ || exit 1
+sudo umount "$1"/mnt/data
+sudo umount "$1"/{proc,sys,dev}/ || exit 1
 
 echo "Done"
