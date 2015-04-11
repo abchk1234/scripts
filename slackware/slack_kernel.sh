@@ -8,13 +8,13 @@ if [ -z "$version" ]; then
 fi
 
 arch=$(uname -a)
+cores=3
 
 # Get base version of kernel, ie, for 3.10.17, base version is 3.10
 base_version=$(echo $version | cut -f -2 -d ".")
 
 get () {
-	# Check if kernel tarball is present
-	# First check for base version present
+	# Check if base kernel version present
 	if [ ! -e linux-"$base_version".tar.xz ] && [ ! -e linux-"$base_version".tar.gz ] && [ ! -e linux-"$base_version".tar.bz2 ]; then
 		# Download the base kernel
 		wget -nc http://www.kernel.org/pub/linux/kernel/v3.x/"$base_version".xz
@@ -30,7 +30,7 @@ get () {
 
 extract_release () {
 	# Check if kernel directory is available
-	if [ -d "linux-$version" ]; then
+	if [ -d linux-"$version" ]; then
 		return 0
 	fi
 	# Else extract the base version
@@ -42,16 +42,14 @@ extract_release () {
 }
 
 extract_patch () {
-	if [ -d "linux-$base_version" ]; then
-		# Need to check if patch for $version is available
-		if [ -e "patch-$version".xz ]; then
-			# Extract the patch
-			unxz patch-$version.?z
-		elif [ -f patch-"$version".tar.gz ]; then
-			gunzip patch-"$version".tar.gz
-		else
-			return 1
-		fi
+	# Need to check if patch for $version is available
+	if [ -e patch-"$version".xz ]; then
+		# Extract the patch
+		unxz patch-"$version".xz
+	elif [ -f patch-"$version".gz ]; then
+		gunzip patch-"$version".gz
+	else
+		return 1
 	fi
 }
 
@@ -88,9 +86,9 @@ build() {
 		# Custom config too
 		make menuconfig
 		# Build the kernel
-		make -j3 bzImage
+		make -j"$cores" bzImage
 		# Build the modules
-		make -j3 modules
+		make -j"$cores" modules
 	else
 		return 1
 	fi
