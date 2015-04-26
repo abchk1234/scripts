@@ -98,16 +98,16 @@ install() {
 	# Install the modules
 	sudo make modules_install
 	# Copy the built kernel and configs
-	sudo cp arch/x86/boot/bzImage /boot/vmlinuz-custom-$version
-	sudo cp System.map /boot/System.map-custom-$version
-	sudo cp .config /boot/config-custom-$version
+	sudo cp -v arch/x86/boot/bzImage /boot/vmlinuz-custom-$version
+	sudo cp -v System.map /boot/System.map-custom-$version
+	sudo cp -v .config /boot/config-custom-$version
 }
 
 remove() {
-	sudo rm -r /lib/modules/"$version"
-	sudo rm /boot/vmlinuz-custom-"$version"
-	sudo rm /boot/System.map-custom-"$version"
-	sudo rm /boot/config-custom-"$version"
+	sudo rm -rv /lib/modules/"$version"
+	sudo rm -v /boot/vmlinuz-custom-"$version"
+	sudo rm -v /boot/System.map-custom-"$version"
+	sudo rm -v /boot/config-custom-"$version"
 }
 
 post_install() {
