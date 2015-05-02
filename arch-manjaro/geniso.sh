@@ -4,6 +4,7 @@
 REPO=openrc-eudev
 WORKDIR=/opt/buildiso
 ARCH=$(uname -m)
+QUERY=false
 
 # Check for root
 if [[ $EUID -ne 0 ]]; then
@@ -18,6 +19,7 @@ do
 	p) PROFILE="$OPTARG";;
 	a) ARCH="$OPTARG";;
 	r) WORKDIR="$OPTARG";;
+	q) QUERY=true;;
 	*) ;;
 	esac
 done
@@ -28,7 +30,7 @@ buildiso "$@" -i
 # Remove the repo from pacman.conf
 for file in $WORKDIR/$PROFILE/$ARCH/{livecd,root,${PROFILE%-*}}-image/etc/pacman.conf
 do
-	if [[ -f $file ]]; then
+	if [[ -f $file ]] && [[ ! $QUERY = true ]]; then
 		echo "Editing $file"
 		sed -i "/^\[$REPO/,/^Server/d" "$file" || exit 1
 	fi
