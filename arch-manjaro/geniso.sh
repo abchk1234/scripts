@@ -1,5 +1,6 @@
 #!/bin/bash
 # geniso.sh: generate ISO using buildiso, removing local repo from pacman.conf
+# Inspired from https://forum.manjaro.org/index.php?topic=20637.msg186815#msg186815
 
 # Set defaults
 WORKDIR=/opt/buildiso
@@ -43,7 +44,7 @@ else
 	VALID=('options' 'core' 'extra' 'community')
 	# Get list of repos
 	if [[ -e $PROFILE/pacman-default.conf ]]; then
-			get_repos "$PROFILE/pacman-default.conf"
+		get_repos "$PROFILE/pacman-default.conf"
 	fi
 fi
 
