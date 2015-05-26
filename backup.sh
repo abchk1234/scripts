@@ -33,7 +33,7 @@ esac
 src=${2:-"/"}
 
 START=$(date +%s)
-rsync -aAXvC -H -h --delete "$src"/* "$1" --exclude={/dev/*,/proc/*,/sys/*,/tmp/*,/run/*,/mnt/*,/media/*,/lost+found,/var/lib/pacman/sync/*,/home/aaditya/DataLinux/*,/home/*/.thumbnails/*,/home/*/.mozilla/firefox/*.default/Cache/*,/home/aaditya/work/*,/home/aaditya/manjaroiso/*,/var/log/journal/*,/home/aaditya/src/kernel/*,/home/*/.cache/*,/root/.cache/*,/home/*/.gvfs}
+rsync -aAXvC -H -h --delete "$src"/* "$1" --exclude={"$src"/dev/*,"$src"/proc/*,"$src"/sys/*,"$src"/tmp/*,"$src"/run/*,"$src"/mnt/*,"$src"/media/*,"$src"/lost+found,"$src"/var/lib/pacman/sync/*,"$src"/home/aaditya/DataLinux/*,"$src"/home/*/.thumbnails/*,"$src"/home/*/.mozilla/firefox/*.default/Cache/*,"$src"/home/aaditya/work/*,"$src"/home/aaditya/manjaroiso/*,"$src"/var/log/journal/*,"$src"/home/aaditya/src/kernel/*,"$src"/home/*/.cache/*,"$src"/root/.cache/*,"$src"/home/*/.gvfs,"$src"/*/.cache/*,"$src"/*/.thumbnails/*}
 FINISH=$(date +%s)
  
 echo "total time: $(( ($FINISH-$START) / 60 )) minutes, $(( ($FINISH-$START) % 60 )) seconds" | tee $1/backup/"Backup-from-$(date '+%A-%d-%B-%Y-%T')"

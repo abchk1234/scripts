@@ -1,69 +1,79 @@
 #!/bin/sh
 # Script to get, build and install kernels in Slackware Linux
 
-version="$1"  # Version of the kernel specified as first command line argument
-if [ -z "$version" ]; then
-	echo "No version specified"
-	exit 1
-fi
-
-arch=$(uname -a)
-cores=3
-
-# Get base version of kernel, ie, for 3.10.17, base version is 3.10
-base_version=$(echo $version | cut -f -2 -d ".")
-
-get () {
-	# Check if base kernel version present
-	if [ ! -e linux-"$base_version".tar.xz ] && [ ! -e linux-"$base_version".tar.gz ] && [ ! -e linux-"$base_version".tar.bz2 ]; then
-		# Download the base kernel
-		wget -nc http://www.kernel.org/pub/linux/kernel/v3.x/"$base_version".xz
+# functions
+init() {
+	if [ -z "$VERSION" ]; then
+		echo "No version specified."
+		echo "Kernel version can be specified using the -k argument."
+		exit 1
 	fi
-	# Check patch version, else download it
-	if [ ! -e patch-"$version" ] && [ ! -e patch-"$version".xz ] && [ ! -e patch-"$version".gz ] && [ ! -e patch-"$version".bz2 ]; then
-		if [ ! "$version" = "$base_version" ]; then
-			# Download the patch
-			wget -nc http://www.kernel.org/pub/linux/kernel/v3.x/patch-"$version".xz
-		fi
-	fi
+	#ARCH=$(uname -a)
+	NUMJOBS=3
+	# Get base version of kernel, ie, for 3.10.17, base version is 3.10
+	BASEVER=${VERSION%.*}
+	# Get really base version, like for 3.10.17, it is 3
+	BASEBASEVER=${VERSION%%.*}
+	# Check for something like 4.0
+	[ "$BASEVER" = "$BASEBASEVER" ] && BASEVER=${VERSION%.*.*}
 }
 
-extract_release () {
+get() {
+	# get shasums
+	# wget -Nc https://www.kernel.org/pub/linux/kernel/v4.x/sha256sums.asc
+	# Check if base kernel version present
+	#if [ ! -e "linux-$BASEVER.tar.xz" ] && [ ! -e "linux-$BASEVER.tar.gz" ] && [ ! -e "linux-$BASEVER.tar.bz2" ]; then
+		# Download the base kernel
+		wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/linux-$BASEVER.tar.xz"
+	#fi
+	# Check patch version, else download it
+	#if [ ! -e "patch-$VERSION" ] && [ ! -e "patch-$VERSION.xz" ] && [ ! -e "patch-$VERSION.gz" ] && [ ! -e "patch-$VERSION.bz2" ]; then
+		if [ ! "$VERSION" = "$BASEVER" ]; then
+			# Download the patch
+			wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/patch-$VERSION.xz"
+		fi
+	#fi
+}
+
+extract_release() {
 	# Check if kernel directory is available
-	if [ -d linux-"$version" ]; then
+	if [ -d "linux-$VERSION" ]; then
 		return 0
 	fi
+	if [ -d "linux-$BASEVER" ]; then
+		return 0
 	# Else extract the base version
-	if [ -f linux-"$base_version".xz ] || [ -f linux-"$base_version".tar.gz ] || [ -f linux-"$base_version".tar.bz2 ]; then
-		tar xvf linux-"$base_version".?z* || exit 1
+	elif [ -f "linux-${BASEVER}.tar.xz" ]; then # || [ -f "linux-$BASEVER.tar.gz" ] || [ -f "linux-$BASEVER.tar.bz2" ]
+		tar xvf "linux-${BASEVER}.tar.xz" || return 1
 	else
+		echo "Unable to extract linux-${BASEVER}.tar.xz"
 		return 1
 	fi
 }
 
-extract_patch () {
-	# Need to check if patch for $version is available
-	if [ -e patch-"$version".xz ]; then
+extract_patch() {
+	# Need to check if patch for specified version is available
+	if [ -e "patch-$VERSION.xz" ]; then
 		# Extract the patch
-		unxz patch-"$version".xz
-	elif [ -f patch-"$version".gz ]; then
-		gunzip patch-"$version".gz
+		unxz "patch-$VERSION.xz"
+	elif [ -f "patch-$VERSION.gz" ]; then
+		"gunzip patch-$VERSION.gz"
 	else
 		return 1
 	fi
 }
 
-apply_patch () {
+apply_patch() {
 	# Now check and apply patch
-	if [ -e "patch-$version" ]; then
+	if [ -e "patch-$VERSION" ]; then
 		# Change into the src directory and apply the patch
-		cd "linux-$base_version" && patch -p1 < ../"patch-$version" || exit 1
+		cd "linux-$BASEVER" && patch -p1 < ../"patch-$VERSION" || exit 1
 		# Change name of src directory so state can be verified
-		cd .. && mv -v "linux-$base_version" "linux-$version"
+		cd .. && mv -v "linux-$BASEVER" "linux-$VERSION"
 	fi
 }
 
-extract () {
+extract(){
 	extract_release
 	extract_patch
 	apply_patch
@@ -71,43 +81,49 @@ extract () {
 
 config() {
 	# Copy the config
-	if [ -e "../config-*$base_version-*" ]; then
+	#if [ -e "../config-generic-$BASEVER-*" ]; then
+		[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
 		mv .config .config.old
-		cp ../config-*$base_version-* .config
-	fi
-}
-
-build() {
-	if [ -d "linux-$version" ]; then
-		# Remove stale .o files and dependencies
-		make mrproper
+		cp ../config-*"$BASEVER"* .config || exit 1
 		# Config handling is manual
 		make oldconfig
 		# Custom config too
 		make menuconfig
+	#fi
+}
+
+build() {
+	# change to proper directory
+	[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+	#if [ -d "linux-$VERSION" ]; then
 		# Build the kernel
-		make -j"$cores" bzImage
+		make -j"$NUMJOBS" bzImage
 		# Build the modules
-		make -j"$cores" modules
-	else
-		return 1
-	fi
+		make -j"$NUMJOBS" modules
+	#else
+	#	return 1
+	#fi
 }
 
 install() {
+	[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
 	# Install the modules
 	sudo make modules_install
 	# Copy the built kernel and configs
-	sudo cp -v arch/x86/boot/bzImage /boot/vmlinuz-custom-$version
-	sudo cp -v System.map /boot/System.map-custom-$version
-	sudo cp -v .config /boot/config-custom-$version
+	if [ "$BASEBASEVER" = 4 ]; then
+		sudo cp -v vmlinux "/boot/vmlinuz-custom-$VERSION"
+	else
+		sudo cp -v ARCH/x86/boot/bzImage "/boot/vmlinuz-custom-$VERSION"
+	fi
+	sudo cp -v System.map "/boot/System.map-custom-$VERSION"
+	sudo cp -v .config "/boot/config-custom-$VERSION"
 }
 
 remove() {
-	sudo rm -rv /lib/modules/"$version"
-	sudo rm -v /boot/vmlinuz-custom-"$version"
-	sudo rm -v /boot/System.map-custom-"$version"
-	sudo rm -v /boot/config-custom-"$version"
+	sudo rm -rv "/lib/modules/$VERSION"
+	sudo rm -v "/boot/vmlinuz-custom-$VERSION"
+	sudo rm -v "/boot/System.map-custom-$VERSION"
+	sudo rm -v "/boot/config-custom-$VERSION"
 }
 
 post_install() {
@@ -116,17 +132,26 @@ post_install() {
 }
 
 clean() {
-	cd linux-"$version" && patch -R -p1 < ../patch-"$version"
-	cd .. && mv -v linux-"$version" linux-"$base_version"
+	[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+	patch -R -p1 < ../"patch-$VERSION" || exit 1
+	cd .. && mv -v "linux-$VERSION" "linux-$BASEVER"
 }
 
-#get
-#clean
-#extract
-#config
-#build
-#install
-#post_install
-#remove
+# process cmd line args
+while getopts "gcembiprk:" opt; do
+	case "$opt" in
+	g) get;;
+	c) clean;;
+	e) extract;;
+	m) config;;
+	b) build;;
+	i) install;;
+	p) post_install;;
+	r) remove;;
+	a) get; extract; config; build; install; post_install;;
+	k) VERSION=$OPTARG; init;;
+	*) ;;
+	esac
+done
 
 echo "Done"
