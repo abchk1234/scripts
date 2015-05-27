@@ -108,22 +108,18 @@ build() {
 install() {
 	[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
 	# Install the modules
-	sudo make modules_install
+	sudo make modules_install || exit 1
 	# Copy the built kernel and configs
-	if [ "$BASEBASEVER" = 4 ]; then
-		sudo cp -v vmlinux "/boot/vmlinuz-custom-$VERSION"
-	else
-		sudo cp -v ARCH/x86/boot/bzImage "/boot/vmlinuz-custom-$VERSION"
-	fi
-	sudo cp -v System.map "/boot/System.map-custom-$VERSION"
-	sudo cp -v .config "/boot/config-custom-$VERSION"
+	sudo cp -v arch/x86/boot/bzImage "/boot/vmlinuz-custom-$VERSION" || exit 1
+	sudo cp -v System.map "/boot/System.map-custom-$VERSION" || exit 1
+	sudo cp -v .config "/boot/config-custom-$VERSION" || exit 1
 }
 
 remove() {
-	sudo rm -rv "/lib/modules/$VERSION"
-	sudo rm -v "/boot/vmlinuz-custom-$VERSION"
-	sudo rm -v "/boot/System.map-custom-$VERSION"
-	sudo rm -v "/boot/config-custom-$VERSION"
+	sudo rm -rv "/lib/modules/$VERSION" || exit 1
+	sudo rm -v "/boot/vmlinuz-custom-$VERSION" || exit 1
+	sudo rm -v "/boot/System.map-custom-$VERSION" || exit 1
+	sudo rm -v "/boot/config-custom-$VERSION" || exit 1
 }
 
 post_install() {
