@@ -2,12 +2,16 @@
 # Script to get, build and install kernels in Slackware Linux
 
 # functions
-init() {
+check_version() {
 	if [ -z "$VERSION" ]; then
 		echo "No version specified."
 		echo "Kernel version can be specified using the -k argument."
 		exit 1
 	fi
+}
+
+init() {
+	check_version
 	#ARCH=$(uname -a)
 	NUMJOBS=3
 	# Get base version of kernel, ie, for 3.10.17, base version is 3.10
@@ -19,6 +23,7 @@ init() {
 }
 
 get() {
+	#check_version
 	# get shasums
 	# wget -Nc https://www.kernel.org/pub/linux/kernel/v4.x/sha256sums.asc
 	# Check if base kernel version present
@@ -74,17 +79,19 @@ apply_patch() {
 }
 
 extract(){
+	#check_version
 	extract_release
 	extract_patch
 	apply_patch
 }
 
 config() {
+	#check_version
 	# Copy the config
 	#if [ -e "../config-generic-$BASEVER-*" ]; then
-		[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
-		mv .config .config.old
-		cp ../config-*"$BASEVER"* .config || exit 1
+		[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+		#mv .config .config.old
+		cp -i ../config-*"$BASEVER"* .config || exit 1
 		# Config handling is manual
 		make oldconfig
 		# Custom config too
@@ -93,8 +100,9 @@ config() {
 }
 
 build() {
+	#check_version
 	# change to proper directory
-	[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+	[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
 	#if [ -d "linux-$VERSION" ]; then
 		# Build the kernel
 		make -j"$NUMJOBS" bzImage
@@ -106,7 +114,8 @@ build() {
 }
 
 install() {
-	[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+	#check_version
+	[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
 	# Install the modules
 	sudo make modules_install || exit 1
 	# Copy the built kernel and configs
@@ -116,6 +125,7 @@ install() {
 }
 
 remove() {
+	#check_version
 	sudo rm -rv "/lib/modules/$VERSION" || exit 1
 	sudo rm -v "/boot/vmlinuz-custom-$VERSION" || exit 1
 	sudo rm -v "/boot/System.map-custom-$VERSION" || exit 1
@@ -128,13 +138,25 @@ post_install() {
 }
 
 clean() {
-	[ "$(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+	#check_version
+	[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
 	patch -R -p1 < ../"patch-$VERSION" || exit 1
 	cd .. && mv -v "linux-$VERSION" "linux-$BASEVER"
 }
 
+display_help() {
+	cat << EOF
+Usage: slack_kernel.sh -k <kernel> <option>
+Options-
+	[get,-g]	[clean,-c]	[extract,-e]
+	[config,-m]	[build,-b]	[install,-i]
+	[posinstall,-p]	[remove,-r]	[all(-gembip),-a]
+	[help,-h]
+EOF
+}
+
 # process cmd line args
-while getopts "gcembiprk:" opt; do
+while getopts "gcembiprahk:" opt; do
 	case "$opt" in
 	g) get;;
 	c) clean;;
@@ -145,6 +167,7 @@ while getopts "gcembiprk:" opt; do
 	p) post_install;;
 	r) remove;;
 	a) get; extract; config; build; install; post_install;;
+	h) display_help ;;
 	k) VERSION=$OPTARG; init;;
 	*) ;;
 	esac
