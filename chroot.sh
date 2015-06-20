@@ -20,7 +20,7 @@ sudo mount -o bind /dev "$1"/dev/ || exit 1
 
 # Mounting extra partition which is already mounted on host
 # first one is host mount path, second is chroot mount 
-sudo mount -B /mnt/datalinux2 "$1"/mnt/data
+#sudo mount -B /mnt/datalinux2 "$1"/mnt/data
 
 # For internet access
 sudo cp /etc/resolv.conf "$1"/etc/resolv.conf
@@ -29,7 +29,7 @@ sudo cp /etc/resolv.conf "$1"/etc/resolv.conf
 sudo chroot "$location" /bin/bash
 
 # Unmounting after exit from chroot
-sudo umount "$1"/mnt/data
+#sudo umount "$1"/mnt/data
 sudo umount "$1"/{proc,sys,dev}/ || exit 1
 
 echo "Done"
