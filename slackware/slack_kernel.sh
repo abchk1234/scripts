@@ -22,22 +22,17 @@ init() {
 	[ "$BASEVER" = "$BASEBASEVER" ] && BASEVER=${VERSION%.*.*}
 }
 
+change_dir() {
+	[ ! "$(basename $(pwd))" = "linux-$VERSION" ] && cd "linux-$VERSION"
+}
+
 get() {
-	#check_version
-	# get shasums
-	# wget -Nc https://www.kernel.org/pub/linux/kernel/v4.x/sha256sums.asc
-	# Check if base kernel version present
-	#if [ ! -e "linux-$BASEVER.tar.xz" ] && [ ! -e "linux-$BASEVER.tar.gz" ] && [ ! -e "linux-$BASEVER.tar.bz2" ]; then
-		# Download the base kernel
-		wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/linux-$BASEVER.tar.xz"
-	#fi
-	# Check patch version, else download it
-	#if [ ! -e "patch-$VERSION" ] && [ ! -e "patch-$VERSION.xz" ] && [ ! -e "patch-$VERSION.gz" ] && [ ! -e "patch-$VERSION.bz2" ]; then
-		if [ ! "$VERSION" = "$BASEVER" ]; then
-			# Download the patch
-			wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/patch-$VERSION.xz"
-		fi
-	#fi
+	# Download the base kernel
+	wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/linux-$BASEVER.tar.xz"
+	# Download patch
+	if [ ! "$VERSION" = "$BASEVER" ]; then
+		wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/patch-$VERSION.xz"
+	fi
 }
 
 extract_release() {
@@ -79,43 +74,34 @@ apply_patch() {
 }
 
 extract(){
-	#check_version
 	extract_release
 	extract_patch
 	apply_patch
 }
 
 config() {
-	#check_version
-	# Copy the config
-	#if [ -e "../config-generic-$BASEVER-*" ]; then
-		[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
-		#mv .config .config.old
-		cp -i ../config-*"$BASEVER"* .config || exit 1
-		# Config handling is manual
-		make oldconfig
-		# Custom config too
-		make menuconfig
-	#fi
+	# change to proper directory
+	change_dir
+	# copy the config
+	cp -i ../config-*"$BASEVER"* .config || exit 1
+	# Config handling is manual
+	make oldconfig
+	# Custom config too
+	make menuconfig
 }
 
 build() {
-	#check_version
 	# change to proper directory
-	[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
-	#if [ -d "linux-$VERSION" ]; then
-		# Build the kernel
-		make -j"$NUMJOBS" bzImage
-		# Build the modules
-		make -j"$NUMJOBS" modules
-	#else
-	#	return 1
-	#fi
+	change_dir
+	# Build the kernel
+	make -j"$NUMJOBS" bzImage
+	# Build the modules
+	make -j"$NUMJOBS" modules
 }
 
 install() {
-	#check_version
-	[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+	# change to proper directory
+	change_dir
 	# Install the modules
 	sudo make modules_install || exit 1
 	# Copy the built kernel and configs
@@ -125,7 +111,6 @@ install() {
 }
 
 remove() {
-	#check_version
 	sudo rm -rv "/lib/modules/$VERSION" || exit 1
 	sudo rm -v "/boot/vmlinuz-custom-$VERSION" || exit 1
 	sudo rm -v "/boot/System.map-custom-$VERSION" || exit 1
@@ -138,8 +123,9 @@ post_install() {
 }
 
 clean() {
-	#check_version
-	[ "basename $(pwd)" != "linux-$VERSION" ] && cd "linux-$VERSION"
+	# change to proper directory
+	change_dir
+	# Unpatch and move the directory to linux-basever
 	patch -R -p1 < ../"patch-$VERSION" || exit 1
 	cd .. && mv -v "linux-$VERSION" "linux-$BASEVER"
 }

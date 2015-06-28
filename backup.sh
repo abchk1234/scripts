@@ -34,7 +34,7 @@ src=${2:-""}
 
 START=$(date +%s)
 
-rsync -aAXvC -H -h --delete "$src"/* "$1" --exclude={"$src/dev/"*,"$src/proc/"*,"$src/sys/"*,"$src/tmp/"*,"$src/run/"*,"$src/mnt/"*,"$src/media/"*,"$src/lost+found","$src/var/lib/pacman/sync/"*,"$src/home/aaditya/DataLinux/"*,"$src"/home/*/.thumbnails/*,"$src"/home/*/.mozilla/firefox/*.default/Cache/*,"$src/home/aaditya/manjaroiso/"*,"$src/var/log/journal/"*,"$src/home/aaditya/src/kernel/"*,"$src"/home/*/.cache/*,"$src/root/.cache/"*,"$src"/home/*/.gvfs,"$src"/*/.cache/*,"$src"/*/.thumbnails/*}
+rsync -aAXv --delete-after "${src}/*" "$1" --exclude={"${src}/dev/*","${src}/proc/*","${src}/sys/*","${src}/tmp/*","${src}/run/*","${src}/mnt/*","${src}/media/*","${src}/lost+found","${src}/var/lib/pacman/sync/*","${src}/home/aaditya/DataLinux/*","${src}/home/*/.thumbnails/*","${src}/home/*/.mozilla/firefox/*.default/Cache/*","${src}/var/log/journal/*","${src}/home/aaditya/src/kernel/*","${src}/home/*/.cache/*","${src}/root/.cache/*","${src}/home/*/.gvfs","${src}/*/.cache/*","${src}/*/.thumbnails/*","${src}/swapfile"}
 
 FINISH=$(date +%s)
  
