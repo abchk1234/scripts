@@ -34,8 +34,8 @@ src=${2:-""}
 
 START=$(date +%s)
 
-rsync -aAXv --delete-after "${src}/*" "$1" --exclude={"${src}/dev/*","${src}/proc/*","${src}/sys/*","${src}/tmp/*","${src}/run/*","${src}/mnt/*","${src}/media/*","${src}/lost+found","${src}/var/lib/pacman/sync/*","${src}/home/aaditya/DataLinux/*","${src}/home/*/.thumbnails/*","${src}/home/*/.mozilla/firefox/*.default/Cache/*","${src}/var/log/journal/*","${src}/home/aaditya/src/kernel/*","${src}/home/*/.cache/*","${src}/root/.cache/*","${src}/home/*/.gvfs","${src}/*/.cache/*","${src}/*/.thumbnails/*","${src}/swapfile"}
+rsync -aAXv --delete-after ${src}/* $1 --exclude={${src}/dev/*,${src}/proc/*,${src}/sys/*,${src}/tmp/*,${src}/run/*,${src}/mnt/*,${src}/media/*,${src}/lost+found,${src}/var/lib/pacman/sync/*,${src}/home/aaditya/DataLinux/*,${src}/home/*/.thumbnails/*,${src}/home/*/.mozilla/firefox/*.default/cache/*,${src}/var/log/journal/*,${src}/home/aaditya/src/kernel/*,${src}/home/*/.cache/*,${src}/root/.cache/*,${src}/home/*/.gvfs,${src}/*/.cache/*,${src}/*/.thumbnails/*,${src}/swapfile,${src}/root/.ccache/*,${src}/home/*/.local/share/Trash/*}
 
 FINISH=$(date +%s)
  
-echo "total time: $(( ($FINISH-$START) / 60 )) minutes, $(( ($FINISH-$START) % 60 )) seconds" | tee $1/backup/"Backup-from-$(date '+%A-%d-%B-%Y-%T')"
+echo "total time: $(( ($FINISH-$START) / 60 )) minutes, $(( ($FINISH-$START) % 60 )) seconds" | tee $1/backup/"Backup-from-$(date '+%A-%d-%B-%Y')"
