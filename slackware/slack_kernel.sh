@@ -102,6 +102,7 @@ build() {
 install() {
 	# change to proper directory
 	change_dir
+	echo "Installing kernel"
 	# Install the modules
 	sudo make modules_install || exit 1
 	# Copy the built kernel and configs
@@ -111,6 +112,7 @@ install() {
 }
 
 remove() {
+	echo "Removing kernel"
 	sudo rm -rv "/lib/modules/$VERSION" || exit 1
 	sudo rm -v "/boot/vmlinuz-custom-$VERSION" || exit 1
 	sudo rm -v "/boot/System.map-custom-$VERSION" || exit 1

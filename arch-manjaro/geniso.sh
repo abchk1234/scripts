@@ -7,6 +7,7 @@ WORKDIR=/var/lib/manjaro-tools/buildiso
 ARCH=$(uname -m)
 QUERY=false
 REPOS=()
+PROFILEDIR=/mnt/datalinux/git/manjaro-tools-iso-profiles
 
 # Check for root
 if [[ $EUID -ne 0 ]]; then
@@ -14,7 +15,8 @@ if [[ $EUID -ne 0 ]]; then
 	exit 1
 fi
 
-# Source for post_install tasks
+# Source for pre and post_install tasks
+source /home/aaditya/mtools/pre-install || exit 1
 source /home/aaditya/mtools/post-install || exit 1
 
 # Colors
@@ -23,7 +25,7 @@ CLR="\e[0m"
 GREEN="\e[1;32m"
 
 # Get profile, arch and other options
-while getopts "p:a:b:r:wcxlisqh" opt
+while getopts "p:a:b:r:t:cisvqh" opt
 do
 	case "$opt" in
 	p) PROFILE="$OPTARG";;
@@ -60,6 +62,8 @@ fi
 if [[ ! $QUERY = true ]]; then
 	rm -v /var/cache/pacman/pkg/tlp-pmu-*-any.pkg.tar.xz
 	rm -v /var/cache/pacman/pkg/openresolv-openrc-*-any.pkg.tar.xz
+	pre_install
+	echo -e "${BOLD}${GREEN}" "Pre-install tasks done." "$CLR"
 fi
 
 # Build the profile chroot
@@ -67,7 +71,9 @@ if [[ $@ != *-sc* ]] && [[ ! $QUERY = true ]]; then
 	buildiso "$@" -i
 fi
 
-echo -e "${GREEN}${BOLD}" "Performing custom tasks." "$CLR"
+if [[ ! $QUERY = true ]]; then
+	echo -e "${GREEN}${BOLD}" "Performing custom tasks." "$CLR"
+fi
 
 # Remove extra repos from pacman.conf
 flag=0
@@ -92,7 +98,7 @@ flag=0
 for file in $WORKDIR/$PROFILE/$ARCH/{livecd,root,${PROFILE%-*}}-image/etc/pacman-mirrors.conf; do
 	if [[ -f $file ]] && [[ ! $QUERY = true ]]; then
 		echo "Editing $file"
-		sed 's|Branch=testing|Branch=stable|' -i "$file" && flag=1 || exit 1
+		sed 's|Branch=.*|Branch=stable|' -i "$file" && flag=1 || exit 1
 	fi
 done
 if [[ $flag -eq 1 ]]; then
