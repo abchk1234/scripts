@@ -1,0 +1,10 @@
+[Unit]
+Description=rc.local
+ 
+[Service]
+Type=oneshot
+RemainAfterExit=no
+ExecStart=/etc/rc.local
+ 
+[Install]
+WantedBy=multi-user.target

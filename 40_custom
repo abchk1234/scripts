@@ -1,0 +1,18 @@
+#!/bin/sh
+exec tail -n +3 $0
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+
+menuentry "Manjaro ISO" {
+	set imgdevpath="/dev/sda5"   
+	set isopath="/manjaro-tools/cache/iso"
+	set isofile="$isopath/manjaro-xfce-0.9.0-openrc-x86_64.iso"
+	set label="MJRO090O"
+	set arch="x86_64"
+	set overlay="free"
+	search --no-floppy -f --set=root $isofile
+	loopback loop $isofile
+	linux (loop)/manjaro/boot/$arch/manjaro  img_dev=$imgdevpath img_loop=$isofile misobasedir=manjaro misolabel=$label nouveau.modeset=1 i915.modeset=1 radeon.modeset=1 logo.nologo overlay=$overlay
+	initrd (loop)/manjaro/boot/$arch/manjaro.img
+}
