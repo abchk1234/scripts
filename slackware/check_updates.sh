@@ -1,7 +1,15 @@
 #!/bin/bash
 # check_updates.sh
 
-for dir in $(find /mnt/datalinux2/slackware/builds -type d -maxdepth 1 ! -name "builds"); do
+PRG='./check_updates'
+
+if [[ $1 = -h ]]; then
+	echo "Usage: $PRG [-ch]"
+	echo "$PRG -ch option opens links in browser for checking."
+	exit
+fi
+
+for dir in $(find /home/aaditya/builds -type d -maxdepth 1 ! -name "builds"); do
 	pkg=$(basename "$dir")
 	if [[ $pkg = MINE ]] || [[ $pkg = EXTRA ]]; then
 		continue

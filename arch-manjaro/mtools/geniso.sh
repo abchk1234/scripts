@@ -75,20 +75,24 @@ if [[ ! $QUERY = true ]]; then
 	echo -e "${GREEN}${BOLD}" "Performing custom tasks." "$CLR"
 fi
 
-# Remove extra repos from pacman.conf
+# Remove extra stuff from pacman.conf
 flag=0
 for repo in "${REPOS[@]}"; do
 	if ! echo "${VALID[*]}" | grep -q "$repo"; then
-		# Remove custom repo
+		# Remove custom repo and custom wget command
 		for file in $WORKDIR/$PROFILE/$ARCH/{livecd,root,${PROFILE%-*}}-image/etc/pacman.conf
 		do
 			if [[ -f $file ]] && [[ ! $QUERY = true ]]; then
 				echo "Editing $file"
-				sed -i "/^\[$repo/,/^Server/d" "$file" && flag=1 || exit 1
+				sed "/^\[$repo/,/^Server/d" -i "$file" && flag=1 || exit 1
+				sed '/XferCommand = \/usr\/bin\/wget -Nc -q --show-progress --passive-ftp -O %o %u/ d' -i "$file" && flag2=1 || exit 1
 			fi
 		done
 		if [[ $flag -eq 1 ]]; then
 			echo -e "${BOLD}${GREEN}" "Custom repo $repo removed from pacman.conf" "$CLR"
+		fi
+		if [[ $flag2 -eq 1 ]]; then
+			echo -e "${BOLD}${GREEN}" "Custom wget command removed from pacman.conf" "$CLR"
 		fi
 	fi
 done

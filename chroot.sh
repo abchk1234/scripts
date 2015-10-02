@@ -14,9 +14,9 @@ location=$1
 cd "$location"
 
 # Mounting, basic
-sudo mount -t proc proc "$1"/proc/ || exit 1
-sudo mount -o bind /sys "$1"/sys/ || exit 1
-sudo mount -o bind /dev "$1"/dev/ || exit 1
+sudo mount -t proc proc "$1"/proc || exit 1
+sudo mount -o bind /sys "$1"/sys || exit 1
+sudo mount -o bind /dev "$1"/dev || exit 1
 
 # Mounting extra partition which is already mounted on host
 # first one is host mount path, second is chroot mount 
