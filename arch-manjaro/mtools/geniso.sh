@@ -7,7 +7,7 @@ WORKDIR=/var/lib/manjaro-tools/buildiso
 ARCH=$(uname -m)
 QUERY=false
 REPOS=()
-PROFILEDIR=/mnt/datalinux/git/manjaro-tools-iso-profiles
+PROFILEDIR=/home/aaditya/manjaro-tools-iso-profiles
 
 # Check for root
 if [[ $EUID -ne 0 ]]; then
@@ -36,32 +36,11 @@ do
 	esac
 done
 
-get_repos () {
-	# get repos from pacman.conf specified as argument
-	local pacman_conf=$1
-	# sed is being used for filtering comments and repo brackets []
-	REPOS=($(grep "\[*\]" "$pacman_conf" | sed -e '/^\s*#/d' -e 's/\[//' -e 's/\]//'))
-}
-
-# Get repos from pacman.conf and set valid repos
-if [[ $ARCH = x86_64 ]]; then
-	VALID=('options' 'core' 'extra' 'community' 'multilib')
-	# Get list of repos
-	if [[ -e $PROFILE/pacman-multilib.conf ]]; then
-		get_repos "$PROFILE/pacman-multilib.conf"
-	fi
-else
-	VALID=('options' 'core' 'extra' 'community')
-	# Get list of repos
-	if [[ -e $PROFILE/pacman-default.conf ]]; then
-		get_repos "$PROFILE/pacman-default.conf"
-	fi
-fi
+# Profile is in community folder
+COMMUNITY_PROFILE="community/${PROFILE}"
 
 # Pre-install
 if [[ ! $QUERY = true ]]; then
-	rm -v /var/cache/pacman/pkg/tlp-pmu-*-any.pkg.tar.xz
-	rm -v /var/cache/pacman/pkg/openresolv-openrc-*-any.pkg.tar.xz
 	pre_install
 	echo -e "${BOLD}${GREEN}" "Pre-install tasks done." "$CLR"
 fi
@@ -77,25 +56,16 @@ fi
 
 # Remove extra stuff from pacman.conf
 flag=0
-for repo in "${REPOS[@]}"; do
-	if ! echo "${VALID[*]}" | grep -q "$repo"; then
-		# Remove custom repo and custom wget command
-		for file in $WORKDIR/$PROFILE/$ARCH/{livecd,root,${PROFILE%-*}}-image/etc/pacman.conf
-		do
-			if [[ -f $file ]] && [[ ! $QUERY = true ]]; then
-				echo "Editing $file"
-				sed "/^\[$repo/,/^Server/d" -i "$file" && flag=1 || exit 1
-				sed '/XferCommand = \/usr\/bin\/wget -Nc -q --show-progress --passive-ftp -O %o %u/ d' -i "$file" && flag2=1 || exit 1
-			fi
-		done
-		if [[ $flag -eq 1 ]]; then
-			echo -e "${BOLD}${GREEN}" "Custom repo $repo removed from pacman.conf" "$CLR"
-		fi
-		if [[ $flag2 -eq 1 ]]; then
-			echo -e "${BOLD}${GREEN}" "Custom wget command removed from pacman.conf" "$CLR"
-		fi
+for file in $WORKDIR/$PROFILE/$ARCH/{livecd,root,${PROFILE%-*}}-image/etc/pacman.conf
+do
+	if [[ -f $file ]] && [[ ! $QUERY = true ]]; then
+		echo "Editing $file"
+		sed '/XferCommand = \/usr\/bin\/wget -Nc -q --show-progress --passive-ftp -O %o %u/ d' -i "$file" && flag=1 || exit 1
 	fi
 done
+if [[ $flag -eq 1 ]]; then
+	echo -e "${BOLD}${GREEN}" "Custom wget command removed from pacman.conf" "$CLR"
+fi
 
 # Change branch to stable in pacman-mirrors.conf
 flag=0

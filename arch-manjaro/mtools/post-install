@@ -26,9 +26,13 @@ post_install () {
 	# Revert Packages file
 	sed '/## ucode for new cpus/ a\
 intel-ucode' -i "${PROFILEDIR}/shared/Packages" || exit 1
+	#echo '## bmenu
+#bmenu
+#brandr
+#mhwd-tui' >> "${PROFILEDIR}/shared/Packages" || exit 1
 	echo "shared/Packages reverted."
 
-	# Reverting pacman.conf for live system
-	sed '/XferCommand = \/usr\/bin\/wget -Nc -q --show-progress --passive-ftp -O %o %u/ d' -i "${PROFILEDIR}/${PROFILE}/pacman-default.conf" -i "${PROFILEDIR}/${PROFILE}/pacman-multilib.conf" || exit 1
-	echo "pacman.conf reverted for live."
+	# Reverting pacman.conf
+	rm "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-default.conf" "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-multilib.conf" || exit 1
+	echo "pacman.conf removed."
 }

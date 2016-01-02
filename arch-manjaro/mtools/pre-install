@@ -2,11 +2,15 @@
 
 pre_install() {
 	# Remove intel-ucode from Packages
-	sed '/intel-ucode/ d' -i "${PROFILEDIR}/shared/Packages" || exit 1
+	#sed -e '/intel-ucode/ d' -e '/bmenu/ d' -e '/brandr/ d' -e '/mhwd-tui/ d' -i "${PROFILEDIR}/shared/Packages" || exit 1
+	sed -e '/intel-ucode/ d' -i "${PROFILEDIR}/shared/Packages" || exit 1
+	#echo "intel-ucode and some others removed from Packages."
 	echo "intel-ucode removed from Packages."
 
 	# Adding Xfer command for build pacman.conf
+	cp /usr/share/manjaro-tools/pacman-default.conf "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-default.conf" || exit 1
+	cp /usr/share/manjaro-tools/pacman-multilib.conf "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-multilib.conf" || exit 1
 	sed '/#XferCommand = \/usr\/bin\/wget --passive-ftp -c -O %o %u/ a\
-XferCommand = /usr/bin/wget -Nc -q --show-progress --passive-ftp -O %o %u' -i "${PROFILEDIR}/${PROFILE}/pacman-default.conf" -i "${PROFILEDIR}/${PROFILE}/pacman-multilib.conf" || exit 1
-	echo "pacman.conf modified for build."
+XferCommand = /usr/bin/wget -Nc -q --show-progress --passive-ftp -O %o %u' -i "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-default.conf" -i "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-multilib.conf" || exit 1
+	echo "pacman.conf added for build."
 }
