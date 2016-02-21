@@ -23,10 +23,12 @@ init() {
 }
 
 change_dir() {
+	check_version
 	[ ! "$(basename $(pwd))" = "linux-$VERSION" ] && cd "linux-$VERSION"
 }
 
 get() {
+	check_version
 	# Download the base kernel
 	wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/linux-$BASEVER.tar.xz"
 	# Download patch
@@ -74,6 +76,7 @@ apply_patch() {
 }
 
 extract(){
+	check_version
 	extract_release
 	extract_patch
 	apply_patch
@@ -100,6 +103,7 @@ build() {
 }
 
 install() {
+	check_version
 	# change to proper directory
 	change_dir
 	echo "Installing kernel"
@@ -112,6 +116,7 @@ install() {
 }
 
 remove() {
+	check_version
 	echo "Removing kernel"
 	sudo rm -rv "/lib/modules/$VERSION" || exit 1
 	sudo rm -v "/boot/vmlinuz-custom-$VERSION" || exit 1
@@ -125,6 +130,7 @@ post_install() {
 }
 
 clean() {
+	check_version
 	# change to proper directory
 	change_dir
 	# Unpatch and move the directory to linux-basever
