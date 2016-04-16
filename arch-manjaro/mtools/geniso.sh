@@ -7,7 +7,7 @@ WORKDIR=/var/lib/manjaro-tools/buildiso
 ARCH=$(uname -m)
 QUERY=false
 REPOS=()
-PROFILEDIR=/home/aaditya/manjaro-tools-iso-profiles
+PROFILEDIR="/home/aaditya/manjaro-tools-iso-profiles"
 
 # Check for root
 if [[ $EUID -ne 0 ]]; then

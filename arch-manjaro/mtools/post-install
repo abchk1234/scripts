@@ -12,24 +12,21 @@ post_install () {
 	echo "cli-installer.desktop and Beginner_User_Guide.desktop copied to livecd."
 
 	# Disabling automatic swap partition mounting in livecd
-	sed 's|swapon ${swapdev}|#swapon ${swapdev}|' -i "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/util-livecd.sh" || exit 1
+	#sed 's|swapon ${swapdev}|#swapon ${swapdev}|' -i "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/util-livecd.sh" || exit 1
+	sed 's|swapon ${swapdev}|#swapon ${swapdev}|' -i "$WORKDIR/$PROFILE/$ARCH/livecd-image/usr/lib/manjaro-tools/util-live.sh" || exit 1
 	echo "Automatic swap partition commented out."
 
 	# Copying modified setup
-	cp /mnt/datalinux/git/manjaro-tools-livecd/livecd-cli-installer/opt/livecd/setup-0.9 "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/setup-0.9" || exit 1
-	echo "Copied modified setup."
+	#cp /mnt/datalinux/git/manjaro-tools-livecd/livecd-cli-installer/opt/livecd/setup-0.9 "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/setup-0.9" || exit 1
+	#echo "Copied modified setup."
 
 	# Changing log location in setup
-	sed 's|LOG="/dev/tty8"|LOG="/var/log/setup.log"|' -i "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/setup-0.9" || exit 1
-	echo "Log location in setup changed."
+	#sed 's|LOG="/dev/tty8"|LOG="/var/log/setup.log"|' -i "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/setup-0.9" || exit 1
+	#echo "Log location in setup changed."
 
 	# Revert Packages file
 	sed '/## ucode for new cpus/ a\
 intel-ucode' -i "${PROFILEDIR}/shared/Packages" || exit 1
-	#echo '## bmenu
-#bmenu
-#brandr
-#mhwd-tui' >> "${PROFILEDIR}/shared/Packages" || exit 1
 	echo "shared/Packages reverted."
 
 	# Reverting pacman.conf
