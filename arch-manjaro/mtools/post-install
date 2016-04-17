@@ -17,8 +17,8 @@ post_install () {
 	echo "Automatic swap partition commented out."
 
 	# Copying modified setup
-	#cp /mnt/datalinux/git/manjaro-tools-livecd/livecd-cli-installer/opt/livecd/setup-0.9 "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/setup-0.9" || exit 1
-	#echo "Copied modified setup."
+	cp /home/aaditya/iso/cli-installer "$WORKDIR/$PROFILE/$ARCH/livecd-image/usr/bin/cli-installer" || exit 1
+	echo "Copied modified setup."
 
 	# Changing log location in setup
 	#sed 's|LOG="/dev/tty8"|LOG="/var/log/setup.log"|' -i "$WORKDIR/$PROFILE/$ARCH/livecd-image/opt/livecd/setup-0.9" || exit 1
