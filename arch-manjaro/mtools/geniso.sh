@@ -60,7 +60,7 @@ for file in $WORKDIR/$PROFILE/$ARCH/{livecd,root,${PROFILE%-*}}-image/etc/pacman
 do
 	if [[ -f $file ]] && [[ ! $QUERY = true ]]; then
 		echo "Editing $file"
-		sed '/XferCommand = \/usr\/bin\/wget -Nc -q --show-progress --passive-ftp -O %o %u/ d' -i "$file" && flag=1 || exit 1
+		sed '/XferCommand = \/usr\/bin\/wget --passive-ftp -c -q --show-progress -O %o %u/ d' -i "$file" && flag=1 || exit 1
 	fi
 done
 if [[ $flag -eq 1 ]]; then
