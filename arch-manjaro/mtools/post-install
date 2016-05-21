@@ -31,5 +31,6 @@ intel-ucode' -i "${PROFILEDIR}/shared/Packages" || exit 1
 
 	# Reverting pacman.conf
 	rm "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-default.conf" "${PROFILEDIR}/${COMMUNITY_PROFILE}/pacman-multilib.conf" || exit 1
+	sed -d 'XferCommand = /usr/bin/wget --passive-ftp -c -q --show-progress -O %o %u' "$WORKDIR/$PROFILE/$ARCH/root-image/etc/pacman.conf"
 	echo "pacman.conf removed."
 }
