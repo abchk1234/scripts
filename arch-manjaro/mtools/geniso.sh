@@ -39,7 +39,7 @@ done
 # Profile is in community folder
 COMMUNITY_PROFILE="community/${PROFILE}"
 
-# Pre-install
+# Pre install
 if [[ ! $QUERY = true ]]; then
 	pre_install
 	echo -e "${BOLD}${GREEN}" "Pre-install tasks done." "$CLR"
@@ -50,6 +50,12 @@ if [[ $@ != *-sc* ]] && [[ ! $QUERY = true ]]; then
 	buildiso "$@" -i
 fi
 
+# Check if ISO got built correctly
+if [ ! $? -eq 0 ];
+	exit 1
+fi
+
+# Post install
 if [[ ! $QUERY = true ]]; then
 	echo -e "${GREEN}${BOLD}" "Performing custom tasks." "$CLR"
 fi
