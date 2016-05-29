@@ -51,7 +51,7 @@ if [[ $@ != *-sc* ]] && [[ ! $QUERY = true ]]; then
 fi
 
 # Check if ISO got built correctly
-if [ ! $? -eq 0 ];
+if [ ! $? -eq 0 ]; then
 	exit 1
 fi
 
