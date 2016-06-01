@@ -50,11 +50,6 @@ if [[ $@ != *-sc* ]] && [[ ! $QUERY = true ]]; then
 	buildiso "$@" -i
 fi
 
-# Check if ISO got built correctly
-if [ ! $? -eq 0 ]; then
-	exit 1
-fi
-
 # Post install
 if [[ ! $QUERY = true ]]; then
 	echo -e "${GREEN}${BOLD}" "Performing custom tasks." "$CLR"
