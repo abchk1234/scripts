@@ -30,10 +30,10 @@ change_dir() {
 get() {
 	check_version
 	# Download the base kernel
-	wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/linux-$BASEVER.tar.xz"
+	wget -Nc "https://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/linux-$BASEVER.tar.xz"
 	# Download patch
 	if [ ! "$VERSION" = "$BASEVER" ]; then
-		wget -Nc "http://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/patch-$VERSION.xz"
+		wget -Nc "https://www.kernel.org/pub/linux/kernel/v${BASEBASEVER}.x/patch-$VERSION.xz"
 	fi
 }
 
@@ -106,7 +106,7 @@ install() {
 	check_version
 	# change to proper directory
 	change_dir
-	echo "Installing kernel"
+	echo "Installing kernel ${VERSION}"
 	# Install the modules
 	sudo make modules_install || exit 1
 	# Copy the built kernel and configs
@@ -117,7 +117,7 @@ install() {
 
 remove() {
 	check_version
-	echo "Removing kernel"
+	echo "Removing kernel ${VERSION}"
 	sudo rm -rv "/lib/modules/$VERSION" || exit 1
 	sudo rm -v "/boot/vmlinuz-custom-$VERSION" || exit 1
 	sudo rm -v "/boot/System.map-custom-$VERSION" || exit 1
@@ -126,6 +126,7 @@ remove() {
 
 post_install() {
 	# Update bootloader
+	echo 'Updating grub configurartion'
 	sudo update-grub
 }
 
@@ -167,4 +168,4 @@ while getopts "gcembiprahk:" opt; do
 	esac
 done
 
-echo "Done"
+#echo "Done"
