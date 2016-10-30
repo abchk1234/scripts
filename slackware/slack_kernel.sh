@@ -14,7 +14,7 @@ check_version() {
 init() {
 	check_version
 	#ARCH=$(uname -a)
-	NUMJOBS=${NUMJOBS:-3}
+	NUMJOBS=${NUMJOBS:--j3}
 	# Get base version of kernel, ie, for 3.10.17, base version is 3.10
 	BASEVER=${VERSION%.*}
 	# Get really base version, like for 3.10.17, it is 3
@@ -107,9 +107,9 @@ build() {
 	# change to proper directory
 	change_dir
 	# Build the kernel
-	make -j"$NUMJOBS" bzImage
+	make "$NUMJOBS" bzImage
 	# Build the modules
-	make -j"$NUMJOBS" modules
+	make "$NUMJOBS" modules
 }
 
 install() {
