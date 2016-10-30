@@ -74,6 +74,15 @@ apply_patch() {
 		# Change name of src directory so state can be verified
 		cd .. && mv -v "linux-$BASEVER" "linux-$VERSION"
 	fi
+	# Apply any other patches present
+	if [ -d "patches/linux-${BASEVER}" ]; then
+		echo "Applying custom linux-${BASEVER} patches..."
+		cd "linux-${VERSION}"
+		for file in ../patches/linux-"${BASEVER}"/*; do
+			patch -p1 < "${file}" || exit 1
+		done
+		cd ..
+	fi
 }
 
 extract(){
@@ -141,6 +150,17 @@ post_install() {
 
 clean() {
 	check_version
+	# Revert any other patches present
+	if [ -d "patches/linux-${BASEVER}" ]; then
+		echo "Reverting custom linux-${BASEVER} patches..."
+		cd "linux-${VERSION}"
+		local files=()
+		files=(../patches/linux-"${BASEVER}"/*)
+		for ((i=${#files[@]}-1; i>=0; i--)); do
+			patch -R -p1 < "${files[$i]}" || exit 1
+		done
+		cd ..
+	fi
 	# change to proper directory
 	change_dir
 	# Unpatch and move the directory to linux-basever
