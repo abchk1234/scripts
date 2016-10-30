@@ -1,5 +1,6 @@
 #!/bin/sh
 # Script to get, build and install kernels in Slackware Linux
+# Loosely based upon the steps specified in http://docs.slackware.com/howtos:slackware_admin:kernelbuilding
 
 # functions
 check_version() {
@@ -13,7 +14,7 @@ check_version() {
 init() {
 	check_version
 	#ARCH=$(uname -a)
-	NUMJOBS=3
+	NUMJOBS=${NUMJOBS:-3}
 	# Get base version of kernel, ie, for 3.10.17, base version is 3.10
 	BASEVER=${VERSION%.*}
 	# Get really base version, like for 3.10.17, it is 3
@@ -118,6 +119,14 @@ install() {
 remove() {
 	check_version
 	echo "Removing kernel ${VERSION}"
+	if [ "$(uname -r)" = ${VERSION} ]; then
+		echo "You are about to remove the running kernel, are you sure you want to continue? [y/n]"
+		local choice
+		read -r -e choice
+		if [ ! "${choice}" = y ] && [ ! "${choice}" = Y ]; then
+			return 1
+		fi
+	fi
 	sudo rm -rv "/lib/modules/$VERSION" || exit 1
 	sudo rm -v "/boot/vmlinuz-custom-$VERSION" || exit 1
 	sudo rm -v "/boot/System.map-custom-$VERSION" || exit 1
