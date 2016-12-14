@@ -145,7 +145,7 @@ remove() {
 post_install() {
 	# Update bootloader
 	echo 'Updating grub configurartion'
-	sudo update-grub
+	sudo grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 clean() {
