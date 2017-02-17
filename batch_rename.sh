@@ -1,5 +1,6 @@
 #!/bin/bash
 # rename_batch.sh: to rename a batch of files based on a particular regex
+# http://stackoverflow.com/questions/1086502/rename-multiple-files-in-unix
 
 DIR='.'
 PATTERN='s/openrc-openrc/openrc/'
