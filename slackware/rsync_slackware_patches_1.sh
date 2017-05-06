@@ -53,6 +53,11 @@ PKGONLY=0
 # only download sources (i.e. no binaries - compiling everything manually):
 SRCONLY=0
 
+# By default we do want to download the patches
+# Override with the "-c" commandline option in case you only want to know
+# if updates are available
+DOWNLOAD_PATCHES=1
+
 # You can use an 'excludes' file that contains items to exclude from
 # the rsync; one exclude per line. For example, create a file excl_12.txt
 # with the lines (get rid of the '#   ' of course!):
@@ -74,10 +79,12 @@ RSYNCHOST=${RSYNCHOST:-"slackware.osuosl.org::slackware"}
 BN=$(basename $0)
 SHOWHELP=0
 
-while getopts "a:hknpr:qsX:" Option
+while getopts "a:chknpr:qsX:" Option
 do
   case $Option in
     a ) SARCH=${OPTARG}
+        ;;
+    c ) DOWNLOAD_PATCHES=0
         ;;
     h ) SHOWHELP=1
         ;;
@@ -124,6 +131,7 @@ if [ $SHOWHELP -eq 1 ]; then
   echo "[$BN:] Parameters are:"
   echo "  -a <arch>    Architecture to mirror (defaults to 'x86',"
   echo "               can be 'x86_64' too)."
+  echo "  -c           Check change log only, do not download patches."
   echo "  -h           This help."
   echo "  -k           Keep old local files even though they were"
   echo "               removed on the remote server."
@@ -175,7 +183,7 @@ if [ "$EXCLUDEFILE" != "" ]; then
 fi
 
 # Record time of last modification of CHECKSUMS.md5 (it might not yet be there!)
-LASTMOD=$(stat -c %Y ./patches/CHECKSUMS.md5 2>/dev/null)
+LASTMOD=$(stat -c %Y ./ChangeLog.txt 2>/dev/null)
 LASTMOD=${LASTMOD:-0}
 
 # Keep a copy of ChangeLog.txt for feedback in case of updates:
@@ -186,16 +194,18 @@ cat ChangeLog.txt > $TMPFILE 2>/dev/null
 [ ${VERBOSE} -eq 1 ] && echo "[$BN:] Here we go... using master '${RSYNCHOST}'"
 
 rsync ${RSYNCOPTS} ${RSYNCVERBOSE} -a --delete ${RSYNCHOST}/$SLACKDIR-$VERSION/ChangeLog.txt .
-for DIREC in . slackware source ; do
-  rsync ${RSYNCOPTS} ${RSYNCVERBOSE} -a --delete ${RSYNCHOST}/$SLACKDIR-$VERSION/${DIREC}/{PACKAGES,MANIFEST,FILELIST,FILE_LIST,CHECKSUMS.md5}* ${DIREC}/  2>/dev/null
-done
-rsync ${RSYNCOPTS} ${RSYNCVERBOSE} -a ${KEEPOPTS} ${RSYNCHOST}/$SLACKDIR-$VERSION/patches .
+if [ ${DOWNLOAD_PATCHES} -eq 1 ]; then
+  for DIREC in . slackware source ; do
+    rsync ${RSYNCOPTS} ${RSYNCVERBOSE} -a --delete ${RSYNCHOST}/$SLACKDIR-$VERSION/${DIREC}/{PACKAGES,MANIFEST,FILELIST,FILE_LIST,CHECKSUMS.md5}* ${DIREC}/  2>/dev/null
+  done
+  rsync ${RSYNCOPTS} ${RSYNCVERBOSE} -a ${KEEPOPTS} ${RSYNCHOST}/$SLACKDIR-$VERSION/patches .
+fi
 
 [ ${VERBOSE} -eq 1 ] && echo "[$BN:] Exit status: $?"
 [ ${VERBOSE} -eq 1 ] && echo "[$BN:] Done rsync-ing."
 
 # Compare time of last modification of the CHECKSUMS.md5 to what we had:
-NEWMOD=$(stat -c %Y ./patches/CHECKSUMS.md5)
+NEWMOD=$(stat -c %Y ./ChangeLog.txt)
 NEWMOD=${NEWMOD:-0}
 
 if [ $LASTMOD -ne $NEWMOD ]; then
