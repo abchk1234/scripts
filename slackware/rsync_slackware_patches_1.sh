@@ -131,7 +131,7 @@ if [ $SHOWHELP -eq 1 ]; then
   echo "[$BN:] Parameters are:"
   echo "  -a <arch>    Architecture to mirror (defaults to 'x86',"
   echo "               can be 'x86_64' too)."
-  echo "  -c           Check change log only, do not download patches."
+  echo "  -c           Check changelog only, do not download patches."
   echo "  -h           This help."
   echo "  -k           Keep old local files even though they were"
   echo "               removed on the remote server."
