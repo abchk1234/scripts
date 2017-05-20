@@ -2,6 +2,7 @@
 # to act on HDMI cable plug/unplug
 # https://bbs.archlinux.org/viewtopic.php?id=170294
 # https://superuser.com/questions/485120/how-do-i-align-the-bottom-edges-of-two-monitors-with-xrandr
+# https://askubuntu.com/questions/259743/make-xfce-display-manager-use-internal-monitor-after-restart
 
 export DISPLAY=:0.0
  
