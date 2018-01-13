@@ -16,10 +16,14 @@ do
 done
 
 MKINITRD_PARAMS=
-[ "${KERNEL_VERSION}" != '' ] && MKINITRD_PARAMS="-k ${KERNEL_VERSION}"
+[ "${KERNEL_VERSION}" != '' ] && MKINITRD_PARAMS=(-k ${KERNEL_VERSION} -a \"-o /boot/initrd-${KERNEL_VERSION}.gz -F\")
 
 # regenrate initrd because we usually forget that
-[ "${GENERATE_INITRD}" -eq 0 ] && $(/usr/share/mkinitrd/mkinitrd_command_generator.sh $MKINITRD_PARAMS | tail -n 1)
+if [ "${GENERATE_INITRD}" -eq 0 ]; then
+	mkinitrd_cmd="/usr/share/mkinitrd/mkinitrd_command_generator.sh ${MKINITRD_PARAMS[*]} | tail -n 1"
+	echo "generating initrd as $mkinitrd_cmd"
+	$(eval "${mkinitrd_cmd}")
+fi
 
 # finally (re)generate grub config
 grub-mkconfig -o /boot/grub/grub.cfg
