@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Script to get, build and install kernels in Slackware Linux
 # Loosely based upon the steps specified in http://docs.slackware.com/howtos:slackware_admin:kernelbuilding
 
@@ -14,7 +14,11 @@ check_version() {
 init() {
 	check_version
 	#ARCH=$(uname -a)
-	NUMJOBS=${NUMJOBS:--j3}
+	local numjobs
+	numjobs=$(nproc)
+	# to avoid using full system resources, run build at num cores - 1
+	[ "${numjobs}" -gt 1 ] && numjobs=$(( numjobs - 1 ))
+	NUMJOBS=${NUMJOBS:--j${numjobs}}
 	# Get base version of kernel, ie, for 3.10.17, base version is 3.10
 	BASEVER=${VERSION%.*}
 	# Get really base version, like for 3.10.17, it is 3
@@ -25,7 +29,9 @@ init() {
 
 change_dir() {
 	check_version
-	[ ! "$(basename $(pwd))" = "linux-$VERSION" ] && cd "linux-$VERSION"
+	local cwd
+	cwd=$(basename "$(pwd)")
+	[ ! "$cwd" = "linux-$VERSION" ] && cd "linux-$VERSION"
 }
 
 get() {
@@ -77,7 +83,7 @@ apply_patch() {
 	# Apply any other patches present
 	if [ -d "patches/linux-${BASEVER}" ]; then
 		echo "Applying custom linux-${BASEVER} patches..."
-		cd "linux-${VERSION}"
+		cd "linux-${VERSION}" || exit 1
 		for file in ../patches/linux-"${BASEVER}"/*; do
 			patch -p1 < "${file}" || exit 1
 		done
@@ -96,7 +102,15 @@ config() {
 	# change to proper directory
 	change_dir
 	# copy the config
-	cp -i ../config-*"$BASEVER"* .config || exit 1
+	local config_arch config_file
+	[ "$(uname -m)" = x86_64 ] && config_arch=.x64
+	for file in ../config-custom-${VERSION}${config_arch} \
+	  ../config-custom-${BASEVER}*${config_arch} \
+	  ../config-generic-${VERSION}${config_arch} \
+	  ../config-generic-${BASEVER}*${config_arch}; do
+		config_file=${file}
+	done
+	cp -iv "$config_file" .config || exit 1
 	# Config handling is manual
 	make oldconfig
 	# Custom config too
@@ -128,7 +142,7 @@ install() {
 remove() {
 	check_version
 	echo "Removing kernel ${VERSION}"
-	if [ "$(uname -r)" = ${VERSION} ]; then
+	if [ "$(uname -r)" = "${VERSION}" ]; then
 		echo "You are about to remove the running kernel, are you sure you want to continue? [y/n]"
 		local choice
 		read -r -e choice
