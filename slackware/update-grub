@@ -1,1 +1,1 @@
-/usr/sbin/grub-mkconfig -o /boot/grub/grub.cfg
+update-grub.sh
