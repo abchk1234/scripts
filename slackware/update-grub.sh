@@ -15,13 +15,17 @@ do
 	esac
 done
 
-MKINITRD_PARAMS=
-[ "${KERNEL_VERSION}" != '' ] && MKINITRD_PARAMS=(-k ${KERNEL_VERSION} -a \"-o /boot/initrd-${KERNEL_VERSION}.gz -F\")
+MKINITRD_GEN_PARAMS=
+if [ "${KERNEL_VERSION}" != '' ]; then
+	MKINITRD_OPTS="-o /boot/initrd-${KERNEL_VERSION}.gz"
+	[ -f /etc/mkinitrd.conf ] && MKINITRD_OPTS="$MKINITRD_OPTS -F"
+	MKINITRD_GEN_PARAMS=(-k "${KERNEL_VERSION}" -a \"$MKINITRD_OPTS\")
+fi
 
 # regenrate initrd because we usually forget that
 if [ "${GENERATE_INITRD}" -eq 0 ]; then
-	mkinitrd_cmd="/usr/share/mkinitrd/mkinitrd_command_generator.sh ${MKINITRD_PARAMS[*]} | tail -n 1"
-	echo "generating initrd as $mkinitrd_cmd"
+	mkinitrd_cmd="/usr/share/mkinitrd/mkinitrd_command_generator.sh ${MKINITRD_GEN_PARAMS[*]} | tail -n 1"
+	echo "running $mkinitrd_cmd"
 	$(eval "${mkinitrd_cmd}")
 fi
 
