@@ -16,8 +16,8 @@ init() {
 	#ARCH=$(uname -a)
 	local numjobs
 	numjobs=$(nproc)
-	# to avoid using full system resources, run build at num cores - 1
-	[ "${numjobs}" -gt 1 ] && numjobs=$(( numjobs - 1 ))
+	# avoid using full system resources
+	[ "${numjobs}" -gt 1 ] && numjobs=$(( (numjobs * 3) / 4 ))
 	NUMJOBS=${NUMJOBS:--j${numjobs}}
 	# Get base version of kernel, ie, for 3.10.17, base version is 3.10
 	BASEVER=${VERSION%.*}
