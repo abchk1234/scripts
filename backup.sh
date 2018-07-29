@@ -42,10 +42,11 @@ FINISH=$(date +%s)
 
 # Reporting
 content_to_write="total time: $(( (FINISH - START) / 60 )) minutes, $(( (FINISH - START) % 60 )) seconds"
+time_to_write="$(date '+%Y-%B-%d-%A-%T')"
 if [ "$status" -eq 0 ]; then
 	mkdir -p "$1/backup"
-	echo "$content_to_write" | tee "$1/backup/Backup-from-$(date '+%Y-%B-%d-%A-%T')"
+	echo "$content_to_write" | tee "$1/backup/Backup-from-${time_to_write}"
 	# same needs to be present in source as well or it will be deleted on next sync!
 	mkdir -p "$src/backup"
-	echo "$content_to_write" | tee "$src/backup/Backup-from-$(date '+%Y-%B-%d-%A-%T')"
+	echo "$content_to_write" | tee "$src/backup/Backup-from-${time_to_write}"
 fi
