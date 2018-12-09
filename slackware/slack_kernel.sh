@@ -169,7 +169,9 @@ clean() {
 		echo "Reverting custom linux-${BASEVER} patches..."
 		cd "linux-${VERSION}"
 		local files=()
-		files=(../patches/linux-"${BASEVER}"/*)
+		for file in ../patches/linux-${BASEVER}/*; do
+			files+=($file)
+		done
 		for ((i=${#files[@]}-1; i>=0; i--)); do
 			patch -R -p1 < "${files[$i]}" || exit 1
 		done

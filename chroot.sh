@@ -26,7 +26,13 @@ sudo mount -o bind /dev "$1"/dev || exit 1
 sudo cp /etc/resolv.conf "$1"/etc/resolv.conf
 
 # Finally, chroot
-sudo chroot "$location" /bin/bash
+# Need to ensure correct variables
+# http://www.iitk.ac.in/LDP/LDP/lfs/5.0/html/chapter06/chroot.html
+sudo chroot "$location" \
+	/usr/bin/env -i \
+	HOME=/root TERM=$TERM PS1='\u:\w\$ ' \
+	PATH=/bin:/usr/bin:/sbin:/usr/sbin \
+	/bin/bash --login
 
 # Unmounting after exit from chroot
 #sudo umount "$1"/mnt/data
