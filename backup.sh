@@ -34,7 +34,7 @@ src=${2:-""}
 
 START=$(date +%s)
 
-rsync -aAXv --delete-after ${src}/* $1 --exclude={${src}/dev/*,${src}/proc/*,${src}/sys/*,${src}/tmp/*,${src}/run/*,${src}/mnt/*,${src}/media/*,${src}/lost+found,${src}/swapfile,${src}/var/lib/pacman/sync/*,${src}/home/aaditya/DataLinux/*,${src}/home/*/.thumbnails/*,${src}/home/*/.mozilla/firefox/*.default/cache/*,${src}/home/*/.thunderbird/*.default/ImapMail/*,${src}/var/log/journal/*,${src}/home/aaditya/src/kernel/*,${src}/home/*/.cache/*,${src}/root/.cache/*,${src}/home/*/.gvfs,${src}/*/.cache/*,${src}/*/.thumbnails/*,${src}/home/*/.ccache/*,${src}/root/.ccache/*,${src}/home/*/.local/share/Trash/*}
+rsync -aAXv --delete-after ${src}/* $1 --exclude={/dev/*,/proc/*,/sys/*,/tmp/*,/run/*,/mnt/*,/media/*,/lost+found,/swapfile,/var/lib/pacman/sync/*,/home/aaditya/DataLinux/*,/home/*/.thumbnails/*,/home/*/.mozilla/firefox/*.default/cache/*,/home/*/.thunderbird/*.default/ImapMail/*,/var/log/journal/*,/home/aaditya/src/kernel/*,/home/*/.cache/*,/root/.cache/*,/home/*/.gvfs,/*/.cache/*,/*/.thumbnails/*,/home/*/.ccache/*,/root/.ccache/*,/home/*/.local/share/Trash/*}
 
 status=$?
 
