@@ -37,4 +37,8 @@ if [ $DRY_RUN = 'false' ]; then
 	find "$CACHE_DIR" -type d -empty -print -delete
 fi
 
-echo "space to be cleared: $TOTAL_FILE_SIZE kb"
+if [ $DRY_RUN = 'false' ]; then
+	echo "space cleared: $TOTAL_FILE_SIZE kb"
+else
+	echo "space to be cleared: $TOTAL_FILE_SIZE kb"
+fi

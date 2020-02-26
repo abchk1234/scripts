@@ -1,0 +1,131 @@
+#!/bin/bash
+#
+# Find what packages have broken library links and would need a recompile.
+#
+# Original source: http://armed.slackware.com/scripts/find-whatneedsrecompiling
+# <mozes@slackware.com>
+# 25-Feb-2010.
+#
+# Updates by volkerdi and alien
+# 
+
+# The location of your Slackware package series:
+# Needed so we can determine which package series a package
+# belongs to.
+if [ "$(uname -m)" = "x86_64" ]; then
+  PKGSTORE=${PKGSTORE:-/root/slackware64-current/slackware64}
+  export LD_LIBRARY_PATH=$( echo /usr/lib64/perl*/vendor_perl/auto/QtCore*/ /usr/lib64/perl5/CORE/ /usr/lib64/kde4/ | sed 's? ?:?g' )
+else
+  PKGSTORE=${PKGSTORE:-/root/slackware-current/slackware}
+  export LD_LIBRARY_PATH=$( echo /usr/lib/perl*/vendor_perl/auto/QtCore*/ /usr/lib/perl5/CORE/ /usr/lib/kde4/ | sed 's? ?:?g' )
+fi
+
+#########################################################################
+
+if [ ! -d "$PKGSTORE" ]; then
+  echo "$PKGSTORE does not exist."
+  exit 1
+fi
+
+# By default, only list directly linked libraries.  Pass --indirect
+# as the first program option if you want the complete list of everything
+# directly or indirectly linked to a library.
+if [ "$1" = "--indirect" ]; then
+  INDIRECT="true"
+  shift 1
+else
+  INDIRECT="false"
+fi
+
+cleanup() {
+  rm -r $TMPDIR
+}
+
+trap 'cleanup' 2 14 15          # trap CTRL+C and kill
+
+TMPDIR="$(mktemp -d /tmp/find-whatneedsrecompiling.XXXXXX)"
+
+# Return a package name that has been stripped of the dirname portion
+# and any of the valid extensions (only):
+pkgbase() {
+  # basename + strip extensions .tbz, .tgz, .tlz and .txz
+  echo "$1" | sed 's?.*/??;s/\.t[bglx]z$//'
+}
+# Strip version, architecture and build from the end of the name
+package_name() {
+  pkgbase $1 | sed 's?-[^-]*-[^-]*-[^-]*$??'
+}
+
+echo "Searching ELFs with broken library links"
+
+findy() {
+local found
+echo "in: $1"
+find $1 -type f -print | while read i ; do
+  # We filter ': version ' to get rid of warnings about library versions from
+  # Mozilla things.  They include the right libraries in their LD_LIBRARY_PATH,
+  # but there's no one-size-fits-all LD_LIBRARY_PATH that we can use in this
+  # script that would avoid all the warnings.  Since the warnings contain the
+  # string 'not found' they cause false positives...
+  if file $i | { grep -q 'ELF.*dynamically' && ldd $i 2>/dev/null ;} | grep -v ': version ' | grep -q 'not found' ; then # found broken dep (direct or indirect)
+    if [ "$INDIRECT" = "false" ]; then # weed out things that are only indirectly broken
+      # Generate ldd missing library list:
+      ldd $i | grep -v ': version ' | grep " not found" | tr -d '\t' | cut -f 1 -d ' ' | sort | uniq > $TMPDIR/ldd
+      # Generate readelf -d library list:
+      readelf -d $i | grep -v "Library soname:" | grep "Shared library:" | cut -f 2 -d [ | cut -f 1 -d ] | sort | uniq > $TMPDIR/readelf
+      if [ -z "$(comm -12 $TMPDIR/ldd $TMPDIR/readelf)" ]; then
+        continue
+      fi
+    fi
+    pushd /var/log/packages > /dev/null
+    foundpkg="$( grep "$( echo "$i" | cut -d/ -f2- )$" * | awk -F: '{print $1}' )"
+    if [ ! -z "$foundpkg" ]; then
+      # We found it in a package:
+      echo "$foundpkg $i" | awk '{ printf "  ... Package: %-30s %s\n", $1, $2 }'
+      # Keep a log of the package name so we can uniq it later:
+      echo "$foundpkg" >> $TMPDIR/foundpkg
+    else
+      echo "  ... Unowned! $i"
+    fi 
+    popd > /dev/null
+  fi
+done
+
+}
+
+# Cruise the file system hot spots:
+for foo in /usr/bin /usr/sbin /sbin /bin /lib* /usr/lib* /opt /usr/share/texmf/bin ; do
+  [ -d $foo ] && findy $foo
+  # if this is Ctrl-C'd out of, it doesn't exit the whole script; 
+  # not sure if it's safe to "|| exit 1" after the "findy $foo" though
+done
+
+# Dump a list of the uniq package names that have broken library links
+# and find which package series the package belongs to:
+shopt -s extglob # needed to find package names
+if [ -s $TMPDIR/foundpkg ]; then
+   printf "\nPackages with broken library links:\n"
+   sort $TMPDIR/foundpkg | uniq | while read pkg ; do
+     # Try and find the location
+     PKGNAM=$( package_name $pkg )
+     # Browse the main package series directories for the package name:
+     PKGLOC="$( pushd $PKGSTORE  > /dev/null 
+            find . -maxdepth 1 -mindepth 1 -type d | while read seriesdir ; do
+            pushd $PKGSTORE/$seriesdir > /dev/null
+            if [ -f $PKGNAM-+([^-])-+([^-])-+([^-]).t?z ]; then
+               echo $seriesdir | tr -d './'
+               break
+             fi
+             done )"
+     # Not found? It may be in /extra or a 3rd party installation:
+     [ -z "$PKGLOC" ] && PKGLOC="??"
+     echo "$pkg $PKGLOC"  | awk '{ printf "  %-30s Series: %s\n", $1, $2 }'
+  done
+fi
+
+# Deliver the bad news:
+echo "Number of packages that need to be recompiled:  $(sort $TMPDIR/foundpkg | uniq | wc -l)" 
+
+cleanup
+
+#EOF

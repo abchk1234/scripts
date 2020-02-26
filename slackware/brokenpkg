@@ -1,0 +1,40 @@
+#!/bin/sh
+#  2004/08/22  K. Piche  Find missing library references.
+#  2015/11/27  orbea     Refreshed script
+#  2016/12/23  orbea     Format cleanup
+#  2017/06/16  orbea     Optimization + cleanup
+#  2018/02/10  orbea     Silence ldd warnings
+#  2018/03/07  orbea     Silence find errors for missing directories
+#  2018/03/11  orbea     Reduce indentation
+
+ifs=$IFS
+IFS=':'
+
+ARCH=`uname -m`
+
+libdirs="/lib:/usr/lib:/usr/X11R6/lib:/usr/libexec:/usr/$ARCH-slackware-linux:/lib64:/usr/lib64:/usr/X11R6/lib64"
+extras=
+
+#  Check ELF binaries in the PATH and specified dir trees.
+for tree in $PATH $libdirs $extras; do
+  [ -d "$tree" ] || continue
+  printf %s\\n "DIR $tree"
+  #  Get list of files in tree.
+  files=`find "$tree" -type f`
+  IFS=$ifs
+  for i in $files; do
+    [ -r "$i" ] || continue
+    type=`file "$i"`
+    case "$type" in *ELF*)
+      #  Is an ELF binary.
+      ldd=`ldd "$i" 2>/dev/null`
+      case "$ldd" in *'not found'*)
+        #  Missing lib.
+        printf %s\\n "$i:"
+        printf %s\\n "$ldd" | grep 'not found' ;;
+      esac ;;
+    esac
+  done
+done
+
+exit 0
