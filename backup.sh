@@ -1,25 +1,39 @@
 #!/bin/bash
 # backup.sh: System backup using rsync
 
-# Arguments:
-# $1: Destination path
-# $2: Source path (defaults to /)
+SRCDIR=""
+DESTFS="unix"
 
-if [ $# -lt 1 ]; then 
-    echo "No destination defined. Usage: $0 destination" >&2
+# cmd line args
+while getopts "d:s:w" opt; do
+  case $opt in
+    d)
+      DESTDIR=$OPTARG
+      ;;
+    s)
+      SRCDIR=$OPTARG
+      ;;
+    w)
+      DESTFS="windows"
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+  esac
+done
+
+if [ -z "$DESTDIR" ]; then
+    echo "No destination defined. Usage: $0 -d destination" >&2
     exit 1
-elif [ $# -gt 2 ]; then
-    echo "Too many arguments. Usage: $0 destination" >&2
-    exit 1
-elif [ ! -d "$1" ]; then
-   echo "Invalid path: $1" >&2
+elif [ ! -d "$DESTDIR" ]; then
+   echo "Invalid path: $DESTDIR" >&2
    exit 1
-elif [ ! -w "$1" ]; then
-   echo "Directory not writable: $1" >&2
+elif [ ! -w "$DESTDIR" ]; then
+   echo "Directory not writable: $DESTDIR" >&2
    exit 1
 fi
 
-case "$1" in
+case "$DESTDIR" in
   "/mnt") ;;
   "/mnt/"*) ;;
   "/media") ;;
@@ -30,11 +44,18 @@ case "$1" in
      ;;
 esac
 
-src=${2:-""}
-
 START=$(date +%s)
 
-rsync -aAXv --delete-after ${src}/* $1 --exclude={/dev/*,/proc/*,/sys/*,/tmp/*,/run/*,/mnt/*,/media/*,/lost+found,/swapfile,/var/lib/pacman/sync/*,/home/aaditya/DataLinux/*,/home/*/.thumbnails/*,/home/*/.mozilla/firefox/*.default/cache/*,/home/*/.thunderbird/*.default/ImapMail/*,/var/log/journal/*,/home/aaditya/src/kernel/*,/home/*/.cache/*,/root/.cache/*,/home/*/.gvfs,/*/.cache/*,/*/.thumbnails/*,/home/*/.ccache/*,/root/.ccache/*,/home/*/.local/share/Trash/*}
+if [ "$DESTFS" = unix ]; then
+  rsync -aAXv --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={/dev/*,/proc/*,/sys/*,/run/*,/mnt/*,/media/*,/lost+found,/swapfile,/home/*/.gvfs}
+elif [ "$DESTFS" = windows ]; then
+  # for ntfs and fat
+  ##rsync -vrc --delete --progress --no-p ${SRCDIR}/* $DESTDIR
+  rsync -vr --no-p --modify-window=1 --delete-after "${SRCDIR}"/* "$DESTDIR"
+else
+  echo "Invalid destination filesystem"
+  exit 1
+fi
 
 status=$?
 
@@ -44,9 +65,9 @@ FINISH=$(date +%s)
 content_to_write="total time: $(( (FINISH - START) / 60 )) minutes, $(( (FINISH - START) % 60 )) seconds"
 time_to_write="$(date '+%Y-%B-%d-%A-%T')"
 if [ "$status" -eq 0 ]; then
-	mkdir -p "$1/backup"
-	echo "$content_to_write" | tee "$1/backup/Backup-from-${time_to_write}"
+	mkdir -p "$DESTDIR/backup"
+	echo "$content_to_write" | tee "$DESTDIR/backup/Backup-from-${time_to_write}"
 	# same needs to be present in source as well or it will be deleted on next sync!
-	mkdir -p "$src/backup"
-	echo "$content_to_write" | tee "$src/backup/Backup-from-${time_to_write}"
+	mkdir -p "$SRCDIR/backup"
+	echo "$content_to_write" | tee "$SRCDIR/backup/Backup-from-${time_to_write}"
 fi
