@@ -46,12 +46,16 @@ esac
 
 START=$(date +%s)
 
+# TODO: Windows incremental sync maybe broken
+# TODO: Find out better rsync command that does not involve listing all the source dirs on cmd line
+# TODO: add cmd line args and output to debug commands being run
+
 if [ "$DESTFS" = unix ]; then
   rsync -aAXv --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={/dev/*,/proc/*,/sys/*,/run/*,/mnt/*,/media/*,/lost+found,/swapfile,/home/*/.gvfs}
 elif [ "$DESTFS" = windows ]; then
   # for ntfs and fat
   ##rsync -vrc --delete --progress --no-p ${SRCDIR}/* $DESTDIR
-  rsync -vr --no-p --modify-window=1 --delete-after "${SRCDIR}"/* "$DESTDIR"
+  rsync -vr --no-p --modify-window=1 --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={"\$RECYCLE.BIN/","System Volume Information/"}
 else
   echo "Invalid destination filesystem"
   exit 1
@@ -63,7 +67,7 @@ FINISH=$(date +%s)
 
 # Reporting
 content_to_write="total time: $(( (FINISH - START) / 60 )) minutes, $(( (FINISH - START) % 60 )) seconds"
-time_to_write="$(date '+%Y-%B-%d-%A-%T')"
+time_to_write="$(date '+%Y-%B-%d-%A-%T' | sed 's/:/_/g')"
 if [ "$status" -eq 0 ]; then
 	mkdir -p "$DESTDIR/backup"
 	echo "$content_to_write" | tee "$DESTDIR/backup/Backup-from-${time_to_write}"
