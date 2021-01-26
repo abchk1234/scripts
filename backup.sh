@@ -54,8 +54,8 @@ if [ "$DESTFS" = unix ]; then
   rsync -aAXv --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={/dev/*,/proc/*,/sys/*,/run/*,/mnt/*,/media/*,/lost+found,/swapfile,/home/*/.gvfs}
 elif [ "$DESTFS" = windows ]; then
   # for ntfs and fat
-  ##rsync -vrc --delete --progress --no-p ${SRCDIR}/* $DESTDIR
-  rsync -vr --no-p --modify-window=1 --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={"\$RECYCLE.BIN/","System Volume Information/"}
+  ##rsync -vrc --no-p --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={'$RECYCLE.BIN/','System Volume Information/'}
+  rsync -vrt --modify-window=2 --no-p --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={'$RECYCLE.BIN/','System Volume Information/'}
 else
   echo "Invalid destination filesystem"
   exit 1
