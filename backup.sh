@@ -51,7 +51,7 @@ START=$(date +%s)
 # TODO: add cmd line args and output to debug commands being run
 
 if [ "$DESTFS" = unix ]; then
-  rsync -aAXv --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={/dev/*,/proc/*,/sys/*,/run/*,/mnt/*,/media/*,/lost+found,/swapfile,/home/*/.gvfs}
+  rsync -aAXv --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={/dev/*,/proc/*,/sys/*,/run/*,/mnt/*,/media/*,/lost+found,/swapfile,/home/*/.gvfs,/home/*/.cache/*}
 elif [ "$DESTFS" = windows ]; then
   # for ntfs and fat
   ##rsync -vrc --no-p --delete-after "${SRCDIR}"/* "$DESTDIR" --exclude={'$RECYCLE.BIN/','System Volume Information/'}
